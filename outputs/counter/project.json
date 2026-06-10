@@ -1,0 +1,8 @@
+{
+    "sources": [
+        "src/counter.sv"
+    ],
+    "toplevel": "counter",
+    "test_module": "tb.test_counter",
+    "sim": "verilator"
+}

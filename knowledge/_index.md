@@ -16,3 +16,4 @@
 | [delayed_input_signal.md](patterns/delayed_input_signal.md) | Driving Pulsed Inputs from cocotb | **must-know** | 2026-06-09 |
 | [registered_vs_combinational.md](patterns/registered_vs_combinational.md) | Choose Registered Over Combinational Outputs | high | 2026-06-09 |
 | [blocking_assign_accumulate.md](patterns/blocking_assign_accumulate.md) | Accumulating Multiple One-Hot Inputs in always_comb | medium | 2026-06-09 |
+| [robust_test_reset.md](patterns/robust_test_reset.md) | Robust Reset and Cross-Test State Management | high | 2026-06-09 |
