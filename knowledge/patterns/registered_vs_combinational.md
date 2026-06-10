@@ -4,8 +4,8 @@ category: patterns
 severity: high
 simulator: verilator
 created: 2026-06-09
-updated: 2026-06-09
-sources: [examples/02_vending_machine]
+updated: 2026-06-10
+sources: [examples/02_vending_machine, outputs/debounce]
 related: [knowledge/patterns/delayed_input_signal.md]
 ---
 
@@ -64,3 +64,36 @@ Any output that:
 
 ✅ DO register: dispense, change_valid, read_ready, write_done, irq
 ❌ DON'T register: continuous data buses (unless pipelined)
+
+## Test-Side: Sampling Registered Pulses
+
+A registered pulse output holds for **exactly 1 clock cycle**. In a testbench, if you're waiting for a pulse to appear during a loop, you must sample **inside the loop** and break on detection. Sampling after the loop will miss the pulse.
+
+### Wrong (sample after loop)
+
+```python
+await apply_and_settle(dut, dut.button_in, 1)
+for _ in range(MAX + 20):
+    await RisingEdge(dut.clk)
+# WRONG: pulse already occurred and is gone
+assert int(dut.button_out.value) == 1
+```
+
+### Correct (sample during loop)
+
+```python
+await apply_and_settle(dut, dut.button_in, 1)
+pulse_seen = False
+for _ in range(MAX + 20):
+    await RisingEdge(dut.clk)
+    if int(dut.button_out.value):
+        pulse_seen = True
+        break  # pulse found, verify width next
+assert pulse_seen, "should pulse"
+await tick(dut, 2)
+assert int(dut.button_out.value) == 0, "pulse should be 1 cycle wide"
+```
+
+### Why This Matters
+
+Registered pulses are intentionally narrow (1 cycle). This is correct RTL behavior. The test must match — checking at the exact cycle the pulse fires, not afterwards.

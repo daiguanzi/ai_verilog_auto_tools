@@ -1,90 +1,85 @@
 ---
-title: "Verilator Official Reference Summary"
+title: "Verilator 官方参考 — 编译模型与仿真执行模型"
 category: simulator
 simulator: verilator
 severity: reference
 created: 2026-06-10
 updated: 2026-06-10
-sources: [https://verilator.org/guide/latest/]
-related: [knowledge/simulator/verilator_cocotb.md]
+sources:
+  - https://verilator.org/guide/latest/overview.html
+  - https://verilator.org/guide/latest/verilating.html
+  - https://verilator.org/guide/latest/connecting.html
+  - https://verilator.org/guide/latest/simulating.html
+related: [knowledge/simulator/verilator_cocotb.md, knowledge/simulator/cocotb_reference.md]
 ---
 
-# Verilator 官方手册摘要
+## Verilator 是什么
 
-> Source: https://verilator.org/guide/latest/
-> Focus: Verilog→C++ compilation, model structure, eval loop
-
-## Core Concepts
-
-Verilator is a **Verilog/SystemVerilog to C++/SystemC compiler**. It does NOT interpret
-the code — it compiles to optimized C++ for maximum speed (10-100x faster than interpreted).
-
-### Operation Modes
-- `--binary` — compile to C++ then to executable (most common for cocotb)
-- `--cc` — compile to C++ only
-- `--sc` — compile to SystemC
-- `--lint-only` — lint checks, no code gen
-- `--json-only` — JSON output for other tools
-
-### Model Structure
-The generated model class (`{prefix}`) contains:
-- **Top-level I/O ports**: accessible as member references
-- **Public sub-modules**: pointers to `/* verilator public */` items
-- **Root scope**: `model->rootp` for internal signal access (since v4.210)
-
-## The Evaluation Loop (Key for cocotb integration)
+Verilator 是一个 **Verilog/SystemVerilog → C++/SystemC 编译器**，不是传统的事件驱动仿真器。它将 HDL 编译成 C++ 源码，再由 C++ 编译器编译为可执行文件。
 
 ```
-1. Set inputs on the model
-2. Call model->eval()
-   ├── Evaluates combinational logic
-   └── Advances sequential state (always_ff @posedge)
-3. Read outputs from the model
-4. Repeat
+Verilog(.sv) → verilator → C++(.cpp/.h) → g++/clang++ → executable → simulation
 ```
 
-**Critical**: Combinational logic is NOT computed before sequential blocks.
-Set non-clock inputs with a separate `eval()` before changing clocks.
+## 核心执行模型
 
-When using `--timing` (for delay support):
-- `model->eventsPending()` — any delayed events remaining?
-- `model->nextTimeSlot()` — time of next event
+### eval() 循环
 
-## VPI Interface (How cocotb Communicates)
+Verilated 模型由用户代码（wrapper）通过 `eval()` 显式驱动。没有内置时钟概念：
 
-Verilator supports VPI via `--vpi`. This is the interface cocotb uses.
-- Signal values written via VPI do NOT immediately propagate — must call `eval()`
-- VPI access is ~100x slower than direct C++ reference
-- `VerilatedVpi::callValueCbs()` must be called for signal callbacks
-
-## Cocotb-Specific Implications
-
-cocotb uses Verilator's VPI interface. When cocotb writes a signal value:
-1. The VPI write is "queued" (deposited)
-2. Next `eval()` call applies it
-3. This creates the **1-cycle GPI delay** we observe in practice
-
-## Build Output Summary
-
-The Verilation report prints:
-```
-- Verilator: Built from 354 MB sources in 247 modules,
-    into 74 MB in 89 C++ files needing 0.192 MB
-- Verilator: Walltime 26.580 s (elab=2.096, cvt=18.268, bld=2.100)
+```cpp
+while (!contextp->gotFinish()) {
+    top->eval();  // 执行一个评估周期
+}
 ```
 
-- `elab` — time to read+elaborate input files
-- `cvt` — time to convert to C++
-- `bld` — time to compile with gcc/clang
+**关键**：Verilator 先计算时序逻辑（`always_ff`），再计算组合逻辑。这是出于性能考虑。
 
-## Key Options for cocotb Usage
+> "combinatorial logic is not computed before sequential always blocks are computed (for speed reasons). Therefore it is best to set any non-clock inputs up with a separate eval() call before changing clocks."
 
-| Option | Purpose |
-|--------|---------|
-| `--binary` | Generate executable |
-| `--trace --trace-structs` | Enable VCD/FST waveform dump |
-| `--timing` | Enable intra-assignment delays |
-| `--threads N` | Multithreaded simulation |
-| `--coverage` | Code coverage instrumentation |
-| `--Mdir <dir>` | Output directory |
-| `--top-module <name>` | Force top module |
+### 与 cocotb 的关系
+
+cocotb 通过 VPI（Verilog Procedural Interface）连接 Verilator。官方文档明确指出：
+
+> "signal values that are changed by the VPI will not immediately propagate their values, instead the top level header file's eval() method must be called."
+
+这就是我们观测到的 **GPI 写入有 1 个 eval() 延迟** 的官方解释：VPI 写入只在下次 `eval()` 时生效。
+
+## Verilating 流程
+
+```
+1. verilator 读取 .sv 文件，确定 top module
+2. 将设计翻译为 C++ 代码 (输出到 --Mdir 指定目录)
+3. 若使用 --binary: 同时生成 main() wrapper + Makefile，自动编译
+4. 若使用 --build: 自动调用 make 编译
+```
+
+cocotb 的 runner 封装了这个过程：`runner.build()` 调用 verilator + make，`runner.test()` 运行仿真。
+
+## 性能选项
+
+| 选项 | 作用 |
+|------|------|
+| `-O3` | 最高优化，编译时间最长 |
+| `--x-assign fast` | 加速 X 赋值，略增复位 bug 风险 |
+| `--no-assert` | 跳过断言检查，适合已知正确的模型 |
+| `--threads N` | 多线程仿真 |
+| `--trace` | 启用波形追踪 (FST) |
+
+## 与已有知识库的一致性验证
+
+我们的 `knowledge/simulator/verilator_cocotb.md` 中的 **Eval→Edge→Callback 模型** 与官方文档一致，但官方使用的术语略有不同：
+
+| 我们使用 | 官方使用 |
+|----------|---------|
+| EVAL | eval() / combinational evaluation |
+| EDGE | sequential logic evaluation (同一个 eval 调用内先时序后组合) |
+| CALLBACK | VPI callback / testbench read phase |
+
+**重要修正**：官方文档说明在一个 `eval()` 调用内，时序逻辑先于组合逻辑计算。我们的 3 阶段模型是正确的，但 "EDGE" 和 "EVAL" 在同一个 `eval()` 调用内发生，顺序是 时序→组合，而非 组合→时序。
+
+## 关键限制
+
+- 不支持 `#delay`（Verilator 不是事件驱动仿真器），除非使用 `--timing`
+- VPI 访问比直接 C++ 指针访问慢数百倍
+- 多线程模型有线程亲和性考量

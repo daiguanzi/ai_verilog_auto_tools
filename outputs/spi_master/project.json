@@ -1,0 +1,8 @@
+{
+    "sources": [
+        "src/spi_master.sv"
+    ],
+    "toplevel": "spi_master",
+    "test_module": "tb.test_spi_master",
+    "sim": "verilator"
+}

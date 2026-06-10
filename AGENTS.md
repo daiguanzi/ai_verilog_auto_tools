@@ -27,8 +27,11 @@
 │   └── WORKFLOW.md        ← Step-by-step development phases
 │
 ├── examples/              ← Pre-built reference projects
-│   ├── 01_adder/
-│   └── 02_vending_machine/
+│   ├── 01_adder/           (combinational)
+│   ├── 02_vending_machine/ (FSM + pulsed inputs)
+│   ├── 03_debounce/        (FSM + timer + pulse output)
+│   ├── 04_uart_tx/         (dual-counter + serial)
+│   └── 05_fifo/            (circular buffer + pointers)
 │
 ├── templates/             ← Project & testbench skeletons
 │   ├── project.json
@@ -260,6 +263,7 @@ Date: YYYY-MM-DD
 - **Always register status outputs** (dispense, valid, done) for easier testbench sampling
 - **One test = one scenario.** Do not combine unrelated checks in one `@cocotb.test()`
 - **Clear inputs immediately.** Pulsed inputs must be deasserted within 1 cycle
+- **Distinguish pulse vs level.** Use `drive_pulse` (3-edge) for action triggers (send, wr_en, coin). Use `apply_and_settle` (2-edge) for persistent controls (enable, up_down, mode). Wrong choice = double-action bugs.
 - **Use `int(value)`, not `.integer`.** cocotb Logic objects don't have `.integer` attribute
 - **Sources are workspace-relative.** All paths in project.json are relative to project root
 
@@ -268,7 +272,8 @@ Date: YYYY-MM-DD
 ## 10. Session Startup Checklist
 
 - [ ] `AGENTS.md` read (this file)
-- [ ] `knowledge/_index.md` scanned (total entries: ___)
+- [ ] `knowledge/_index.md` scanned (7 entries: 3 simulator + 4 patterns)
+- [ ] `STATUS.md` read for current phase & progress
 - [ ] `docs/SIMULATOR_GUIDE.md` available for timing questions
 - [ ] `reference/` checked for new input files
 - [ ] Ready to receive instructions

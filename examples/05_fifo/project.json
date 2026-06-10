@@ -1,0 +1,8 @@
+{
+    "sources": [
+        "src/fifo.sv"
+    ],
+    "toplevel": "fifo",
+    "test_module": "tb.test_fifo",
+    "sim": "verilator"
+}

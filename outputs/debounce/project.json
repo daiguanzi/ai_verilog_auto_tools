@@ -1,0 +1,8 @@
+{
+    "sources": [
+        "src/debounce.sv"
+    ],
+    "toplevel": "debounce",
+    "test_module": "tb.test_debounce",
+    "sim": "verilator"
+}

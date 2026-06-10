@@ -4,32 +4,45 @@ category: simulator
 simulator: verilator, cocotb
 severity: must-know
 created: 2026-06-09
-updated: 2026-06-09
-sources: [examples/02_vending_machine, outputs/counter]
-related: [knowledge/patterns/delayed_input_signal.md, knowledge/patterns/registered_vs_combinational.md]
+updated: 2026-06-10
+sources:
+  - examples/02_vending_machine
+  - outputs/counter
+  - https://verilator.org/guide/latest/connecting.html
+  - https://docs.cocotb.org/en/stable/writing_testbenches.html
+related:
+  - knowledge/patterns/delayed_input_signal.md
+  - knowledge/patterns/registered_vs_combinational.md
+  - knowledge/simulator/verilator_reference.md
+  - knowledge/simulator/cocotb_reference.md
 ---
 
 ## Core Cycle Model
 
-Each clock cycle has 3 phases, **strictly ordered**:
+Each clock cycle triggers one `eval()` call, which has 2 internal phases, followed by the cocotb callback:
 
 ```
-Phase 1: EVAL          → Combinational logic computes _d signals
-Phase 2: EDGE           → Sequential logic: _q <= _d (registers update)
-Phase 3: CALLBACK       → cocotb testbench runs (read outputs, write inputs)
+Phase 1: eval() begins
+  ├── 1a. Sequential logic: always_ff @(posedge clk) evaluates
+  │        _q <= _d  (registers update with values computed last cycle)
+  └── 1b. Combinational logic: always_comb evaluates
+           _d = f(_q, inputs)  (next-state computed from new register values)
+Phase 2: CALLBACK → cocotb testbench runs (read outputs, write inputs)
 ```
 
-GPIO writes from the callback are seen by EVAL in the **next** cycle.
+> **Verified by Verilator official docs**: "combinatorial logic is not computed before sequential always blocks are computed (for speed reasons)." — Verilator Connecting Guide
+
+GPIO/VPI writes from the callback are applied during the **next** `eval()` call.
 
 ## Signal Write Timing
 
 | Action | When Visible |
 |--------|-------------|
-| Set input signal in CALLBACK | EVAL of NEXT cycle |
-| Combinational output changes | Same CALLBACK (eval triggered immediately by write) |
-| Registered output updates | EDGE of cycle AFTER the EVAL that processes the write |
+| Set input signal in CALLBACK | Next `eval()` (Phase 1a sequential + 1b combinational) |
+| Registered output (_q) changes | After next `eval()` completes (Phase 1a) |
+| Combinational output (_d) changes | After next `eval()` completes (Phase 1b) |
 
-**Practical consequence**: Writing `dut.signal.value = 1` in the callback means the registered outputs reflect this change **1 edge later**, and fully settle **2 edges later**.
+**Practical consequence** (unchanged): Writing `dut.signal.value = 1` in the callback means registered outputs reflect this change after **1 RisingEdge + eval() cycle**, and fully settle after **2 RisingEdges**.
 
 ## Common Pitfalls
 
@@ -66,6 +79,8 @@ disp = int(dut.dispense.value)  # WRONG: 0, missed the pulse
 - `--trace --trace-structs` enables FST waveform export for GTKWave
 
 ## cocotb-Specific Notes
+
+> **Official confirmation**: cocotb docs state "writes are not applied immediately, but delayed until the next write cycle." This confirms the 1-cycle GPI latency we observe. — [Writing Testbenches](https://docs.cocotb.org/en/stable/writing_testbenches.html)
 
 ### Level Controls vs Pulsed Inputs
 
