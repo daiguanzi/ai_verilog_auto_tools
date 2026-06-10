@@ -1,0 +1,6 @@
+{
+    "sources": ["src/vending_machine.sv"],
+    "toplevel": "vending_machine",
+    "test_module": "tb.test_vending",
+    "sim": "verilator"
+}

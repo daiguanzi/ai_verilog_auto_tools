@@ -1,0 +1,6 @@
+{
+    "sources": ["src/my_design.sv"],
+    "toplevel": "my_design",
+    "test_module": "tb.test_adder",
+    "sim": "verilator"
+}

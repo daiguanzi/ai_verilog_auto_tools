@@ -1,0 +1,14 @@
+# Verilator build artifacts (large, regenerated on each run)
+sim_build/
+
+# Python virtual environment (not portable)
+.venv/
+
+# Python bytecode cache
+__pycache__/
+*.pyc
+*.pyo
+
+# OS files
+.DS_Store
+Thumbs.db
