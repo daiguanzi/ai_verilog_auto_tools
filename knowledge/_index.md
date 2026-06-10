@@ -8,6 +8,8 @@
 | File | Title | Severity | Updated |
 |------|-------|----------|---------|
 | [verilator_cocotb.md](simulator/verilator_cocotb.md) | Verilator + cocotb Signal Timing Model | **must-know** | 2026-06-09 |
+| [verilator_reference.md](simulator/verilator_reference.md) | Verilator Official Reference Summary | reference | 2026-06-10 |
+| [cocotb_reference.md](simulator/cocotb_reference.md) | cocotb Official Reference Summary | reference | 2026-06-10 |
 
 ## RTL & Testbench Patterns (`knowledge/patterns/`)
 
