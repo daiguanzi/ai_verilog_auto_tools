@@ -1,6 +1,6 @@
 # STATUS.md — FPGA Agent 项目状态
 
-> 新对话开始时，AI 应读取：**AGENTS.md → STATUS.md → knowledge/_index.md**
+> 新对话开始时，AI 应读取：**AGENTS.md → STATUS.md → ROADMAP.md → knowledge/_index.md**
 
 ---
 
@@ -59,7 +59,7 @@
 
 ## 3. 正在做什么
 
-**Step 2 全部完成** ✅。4 个基础场景全部通过仿真：
+**阶段 0（单模块仿真闭环）已完成** ✅。4 个基础场景全部通过仿真：
 
 | 场景 | 测试 | 迭代 |
 |------|------|------|
@@ -69,47 +69,15 @@
 | FIFO | 5/5 | 2 |
 | **合计** | **18/18** | **累计 6 次** |
 
-下一步：Step 3 Git push。
+**当前位置：阶段 A —— 加固地基**（见 `ROADMAP.md`）。
+下一步：A1 用 `verilator --xml-only` 替换正则模块解析。
 
 ---
 
 ## 4. 下一步（按顺序执行）
 
-### Step 1: 扩充官方文档 ✅ (2026-06-10 完成)
-1. ✅ 抓取 Verilator 官方手册关键页面：https://verilator.org/guide/latest/
-   - 重点：Verilating 流程、Connecting to Models、Simulating
-2. ✅ 抓取 cocotb 官方文档：https://docs.cocotb.org/en/stable/
-   - 重点：Writing Testbenches、Triggers、Python Runner API
-3. ✅ 编写 `knowledge/simulator/verilator_reference.md` 和 `knowledge/simulator/cocotb_reference.md`
-4. ✅ 用官方信息验证和修订现有知识条目
-   - **修正**：verilator_cocotb.md 中 EVAL 内部顺序（时序先于组合，非组合先于时序）
-   - **确认**：GPI 写入延迟是官方设计行为（"writes are not applied immediately, but delayed until the next write cycle"）
-   - **确认**：跨测试 GPI 污染未在官方文档中提及，属于 Verilator+cocotb 集成特有现象
-
-### Step 2: 积累基础场景
-按难度递增：
-
-| 序号 | 场景 | 知识点 | 状态 |
-|------|------|--------|------|
-| 1 | 按键消抖 (debounce) | 定时器 + FSM + 脉冲输出 | ✅ 5/5 PASS (2 iterations) |
-| 2 | UART 发送器 (TX) | 波特率 + 移位寄存器 + 状态机 | ✅ 4/4 PASS (1 iteration) |
-| 3 | SPI Master | 时钟相位 + 数据移位 + CS | ✅ 4/4 PASS (1 iteration) |
-| 4 | FIFO (手写) | 读写指针 + 满空判断 | ✅ 5/5 PASS (2 iterations) |
-
-每个场景的流程：
-```
-project_gen.py 创建骨架 → 写 RTL → 写 testbench → fpga_tools.py run
-→ PASS → 写 reports/ 复盘 → 更新 knowledge/ → 更新此 STATUS.md
-```
-
-### Step 3: Git push
-每次完成一个场景或重要更新后：
-```powershell
-cd C:\Users\12430\Desktop\ai_verilog_auto_tools
-git add .
-git commit -m "描述做了什么"
-git push
-```
+完整长期路线图见 **`ROADMAP.md`**（阶段 A–E + 架构决策 D1–D5 + 数据探针）。
+当前进行到 **阶段 A**，按 ROADMAP 中 A1→A4 顺序执行。每完成一项更新此处与 ROADMAP 勾选框。
 
 ---
 
