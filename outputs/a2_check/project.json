@@ -1,0 +1,10 @@
+{
+    "sources": ["src/widthmod.sv"],
+    "toplevel": "widthmod",
+    "test_module": "tb.test_widthmod",
+    "sim": "verilator",
+    "includes": ["src"],
+    "defines": {"EXTRA": 1},
+    "parameters": {"WIDTH": 4},
+    "timescale": ["1ns", "1ps"]
+}

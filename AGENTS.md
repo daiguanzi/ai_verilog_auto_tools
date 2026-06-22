@@ -64,12 +64,27 @@ outputs/<project_name>/
 
 ```json
 {
-    "sources": ["src/module1.sv"],
+    "sources": ["src/module1.sv", "src/module2.sv"],
     "toplevel": "top_module",
     "test_module": "tb.test_top",
-    "sim": "verilator"
+    "sim": "verilator",
+    "includes": ["src/include"],
+    "defines": {"WIDTH": 8, "ENABLE_DBG": 1},
+    "parameters": {"DEPTH": 32},
+    "timescale": ["1ns", "1ps"]
 }
 ```
+
+**Required**: `sources`, `toplevel`, `test_module`.
+**Optional** (all default to empty/none):
+- `sim` — simulator (default `verilator`)
+- `includes` — `+incdir` dirs for `` `include `` headers (paths relative to project root)
+- `defines` — Verilog macros (`` `ifdef ``); use a value like `1` for bare flags, not `null`
+- `parameters` — top-level parameter overrides (e.g. resize a FIFO at build time)
+- `timescale` — `["unit", "precision"]` or `"1ns/1ps"`
+
+> `sources` is a list — list multiple files for hierarchical/multi-module designs.
+> See `outputs/a2_check/` for a live example using all optional fields.
 
 ---
 
@@ -272,8 +287,12 @@ Date: YYYY-MM-DD
 ## 10. Session Startup Checklist
 
 - [ ] `AGENTS.md` read (this file)
-- [ ] `knowledge/_index.md` scanned (7 entries: 3 simulator + 4 patterns)
+- [ ] **Run read-only git check** (`git branch -a`, `git status -sb`, `git log --oneline -5`)
+      and **report current branch + pending changes to the user**. Never push
+      automatically — only on explicit request, and always show `git status` first.
 - [ ] `STATUS.md` read for current phase & progress
+- [ ] `ROADMAP.md` read for the long-term plan (phases A–E, decisions D1–D5)
+- [ ] `knowledge/_index.md` scanned
 - [ ] `docs/SIMULATOR_GUIDE.md` available for timing questions
 - [ ] `reference/` checked for new input files
 - [ ] Ready to receive instructions

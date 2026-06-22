@@ -18,8 +18,16 @@ def run_simulation(
     waves: bool = False,
     compile_args: list[str] | None = None,
     sim_args: list[str] | None = None,
+    includes: list[str] | None = None,
+    defines: dict | None = None,
+    parameters: dict | None = None,
+    timescale: object = None,
 ) -> dict:
     sources_abs = [str(Path(s).resolve()) for s in sources]
+    includes_abs = [str(Path(i).resolve()) for i in (includes or [])]
+    defines = defines or {}
+    parameters = parameters or {}
+    timescale = _norm_timescale(timescale)
     build_path = Path(build_dir).resolve()
 
     if test_dir is None:
@@ -38,8 +46,12 @@ def run_simulation(
         runner.build(
             hdl_toplevel=hdl_toplevel,
             sources=sources_abs,
+            includes=includes_abs,
+            defines=defines,
+            parameters=parameters,
             build_dir=str(build_path),
             build_args=compile_args or [],
+            timescale=timescale,
         )
     except Exception as e:
         return _error(f"Build failed: {str(e)[:500]}")
@@ -57,6 +69,8 @@ def run_simulation(
             log_file=str(log_file),
             waves=waves,
             test_args=sim_args or [],
+            parameters=parameters,
+            timescale=timescale,
         )
     except Exception as e:
         return _error(f"Simulation error: {str(e)[:500]}")
@@ -74,6 +88,26 @@ def run_simulation(
         return parsed
 
     return _error("Results XML not generated. Simulation may have failed.", raw_log)
+
+
+def _norm_timescale(ts: object):
+    """Normalize timescale to cocotb's (time_unit, time_precision) tuple, or None.
+
+    Accepts: None, "1ns", "1ns/1ps", ["1ns", "1ps"], ("1ns", "1ps").
+    """
+    if ts is None:
+        return None
+    if isinstance(ts, str):
+        parts = ts.replace(" ", "").split("/")
+        if len(parts) == 1:
+            return (parts[0], parts[0])
+        return (parts[0], parts[1])
+    if isinstance(ts, (list, tuple)):
+        if len(ts) == 1:
+            return (str(ts[0]), str(ts[0]))
+        if len(ts) >= 2:
+            return (str(ts[0]), str(ts[1]))
+    return None
 
 
 def _error(msg: str, raw_log: str = "") -> dict:

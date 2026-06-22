@@ -1,7 +1,11 @@
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Optional
 
@@ -28,6 +32,10 @@ def load_project_config(project_dir: str) -> Optional[dict]:
         return None
     cfg.setdefault("sim", "verilator")
     cfg.setdefault("build_dir", "sim_build")
+    cfg.setdefault("includes", [])
+    cfg.setdefault("defines", {})
+    cfg.setdefault("parameters", {})
+    cfg.setdefault("timescale", None)
     if "sources" not in cfg or "toplevel" not in cfg or "test_module" not in cfg:
         return None
     cfg["__project_dir"] = str(config_path.parent.resolve())
@@ -40,6 +48,7 @@ def run_project(project_dir: str, *, sim: str | None = None, waves: bool = False
         return {"pass": False, "error": f"No valid {CONFIG_FILENAME} found in {project_dir}"}
     proj = cfg["__project_dir"]
     sources = [str(Path(proj) / s) for s in cfg["sources"]]
+    includes = [str(Path(proj) / i) for i in cfg.get("includes", [])]
     return run_and_report(
         sources=sources,
         toplevel=cfg["toplevel"],
@@ -48,33 +57,57 @@ def run_project(project_dir: str, *, sim: str | None = None, waves: bool = False
         build_dir=str(Path(proj) / cfg.get("build_dir", "sim_build")),
         sim=sim or cfg["sim"],
         waves=waves,
+        includes=includes,
+        defines=cfg.get("defines", {}),
+        parameters=cfg.get("parameters", {}),
+        timescale=cfg.get("timescale"),
     )
 
 
 def scan_project(project_dir: str) -> dict:
     project_path = Path(project_dir).resolve()
+    hdl_files = [
+        f for f in sorted(project_path.rglob("*"))
+        if f.suffix.lower() in (".v", ".sv", ".svh", ".vh")
+    ]
+
+    vresult = _scan_with_verilator(hdl_files)
+    if vresult is not None:
+        vresult["project_dir"] = str(project_path)
+        vresult["file_count"] = len(vresult["files"])
+        return vresult
+
+    return _scan_with_regex(project_path, hdl_files)
+
+
+def _scan_with_regex(project_path: Path, hdl_files: list[Path]) -> dict:
     files = []
-    for f in sorted(project_path.rglob("*")):
-        if f.suffix.lower() in (".v", ".sv", ".svh", ".vh"):
-            info = _extract_module_info(f)
-            if info:
-                files.append({
-                    "path": str(f),
-                    "module": info["module"],
-                    "ports": info["ports"],
-                    "parameters": info["parameters"],
-                    "sub_modules": info["sub_modules"],
-                })
+    for f in hdl_files:
+        info = _extract_module_info(f)
+        if info:
+            files.append({
+                "path": str(f),
+                "module": info["module"],
+                "ports": info["ports"],
+                "parameters": info["parameters"],
+                "sub_modules": info["sub_modules"],
+            })
     return {
         "project_dir": str(project_path),
         "file_count": len(files),
         "files": files,
+        "parser": "regex",
     }
 
 
 def find_top_module(project_dir: str) -> Optional[dict]:
     project = scan_project(project_dir)
     modules = {f["module"]: f for f in project["files"]}
+
+    top_name = project.get("top")
+    if top_name and top_name in modules:
+        return modules[top_name]
+
     instantiated = set()
     for f in project["files"]:
         for sub in f["sub_modules"]:
@@ -97,6 +130,7 @@ def print_project_summary(project_dir: str) -> str:
     lines.append("=" * 70)
     lines.append(f"  Directory: {project['project_dir']}")
     lines.append(f"  HDL files: {project['file_count']}")
+    lines.append(f"  Parser: {project.get('parser', 'regex')}")
 
     if top:
         lines.append(f"  Top module: {top['module']} ({Path(top['path']).name})")
@@ -130,6 +164,10 @@ def run_and_report(
     build_dir: str | None = None,
     sim: str = "verilator",
     waves: bool = False,
+    includes: list[str] | None = None,
+    defines: dict | None = None,
+    parameters: dict | None = None,
+    timescale: object = None,
 ) -> dict:
     if _run_sim is None:
         return {"pass": False, "error": "sim_driver.py not found in PYTHONPATH"}
@@ -145,6 +183,10 @@ def run_and_report(
         build_dir=build_dir,
         sim=sim,
         waves=waves,
+        includes=includes,
+        defines=defines,
+        parameters=parameters,
+        timescale=timescale,
     )
 
 
@@ -239,6 +281,168 @@ def _find_instantiations(content: str, own_module: str) -> list[str]:
         ):
             subs.add(candidate)
     return sorted(subs)
+
+
+# ============================================================
+#  Verilator-based parsing (primary; falls back to regex)
+# ============================================================
+
+def _scan_with_verilator(hdl_files: list[Path]) -> Optional[dict]:
+    sources = [str(f) for f in hdl_files if f.suffix.lower() in (".v", ".sv")]
+    if not sources:
+        return None
+    if shutil.which("verilator") is None:
+        return None
+
+    tmpdir = tempfile.mkdtemp(prefix="vxml_")
+    xml_path = Path(tmpdir) / "netlist.xml"
+    cmd = [
+        "verilator", "--xml-only",
+        "--bbox-unsup", "--bbox-sys", "-Wno-fatal",
+        "--Mdir", tmpdir,
+        "--xml-output", str(xml_path),
+        *sources,
+    ]
+    try:
+        subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+    except Exception:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+        return None
+
+    result = None
+    if xml_path.exists():
+        try:
+            root = ET.parse(str(xml_path)).getroot()
+            result = _parse_verilator_xml(root)
+        except Exception:
+            result = None
+    shutil.rmtree(tmpdir, ignore_errors=True)
+
+    if result is None or not result["files"]:
+        return None
+    result["parser"] = "verilator"
+    return result
+
+
+def _parse_verilator_xml(root) -> Optional[dict]:
+    file_map = {}
+    for fel in root.iter("file"):
+        fid = fel.get("id")
+        if fid and fid not in file_map:
+            file_map[fid] = fel.get("filename", "")
+
+    netlist = root.find("netlist")
+    if netlist is None:
+        return None
+
+    typetable = _build_typetable(netlist)
+
+    top_name = None
+    cells = root.find("cells")
+    if cells is not None:
+        cell = cells.find("cell")
+        if cell is not None:
+            top_name = cell.get("submodname") or cell.get("name")
+
+    files = []
+    for mod in netlist.findall("module"):
+        mod_name = mod.get("name")
+        if not mod_name:
+            continue
+        if top_name is None and mod.get("topModule") == "1":
+            top_name = mod_name
+
+        loc = mod.get("loc", "")
+        fid = loc.split(",")[0] if loc else ""
+        path = file_map.get(fid, "")
+
+        ports = []
+        parameters = []
+        for var in mod.findall("var"):
+            if var.get("localparam") == "true":
+                continue
+            if var.get("param") == "true":
+                parameters.append({
+                    "name": var.get("name", "?"),
+                    "type": var.get("vartype", ""),
+                    "default": _param_default(var),
+                })
+                continue
+            direction = var.get("dir")
+            if direction in ("input", "output", "inout"):
+                ports.append({
+                    "_pin": int(var.get("pinIndex", "0") or 0),
+                    "direction": direction,
+                    "type": _dtype_str(var.get("dtype_id"), typetable, var.get("vartype", "")),
+                    "name": var.get("name", "?"),
+                })
+        ports.sort(key=lambda p: p["_pin"])
+        for p in ports:
+            p.pop("_pin", None)
+
+        sub_modules = sorted({
+            inst.get("defName")
+            for inst in mod.iter("instance")
+            if inst.get("defName")
+        })
+
+        files.append({
+            "path": path,
+            "module": mod_name,
+            "ports": ports,
+            "parameters": parameters,
+            "sub_modules": sub_modules,
+        })
+
+    return {"files": files, "top": top_name}
+
+
+def _build_typetable(netlist) -> dict:
+    table = {}
+    tt = netlist.find("typetable")
+    if tt is None:
+        return table
+    for dt in tt.findall("basicdtype"):
+        did = dt.get("id")
+        name = dt.get("name", "logic")
+        left = dt.get("left")
+        right = dt.get("right")
+        if left is not None and right is not None and name in ("logic", "bit", "reg", "wire"):
+            table[did] = f"{name} [{left}:{right}]"
+        else:
+            table[did] = name
+    for dt in tt.findall("unpackarraydtype"):
+        table[dt.get("id")] = "array"
+    return table
+
+
+def _dtype_str(dtype_id, typetable: dict, fallback: str) -> str:
+    if dtype_id and dtype_id in typetable:
+        return typetable[dtype_id]
+    return fallback or "logic"
+
+
+def _param_default(var) -> str:
+    const = var.find("const")
+    if const is None:
+        return ""
+    return _decode_verilog_const(const.get("name", ""))
+
+
+def _decode_verilog_const(raw: str) -> str:
+    if not raw:
+        return ""
+    m = re.match(r"^\d+'(s)?([hbod])([0-9a-fA-FxXzZ_]+)$", raw)
+    if not m:
+        return raw
+    digits = m.group(3).replace("_", "")
+    if any(c in "xXzZ" for c in digits):
+        return raw
+    base = {"h": 16, "b": 2, "o": 8, "d": 10}[m.group(2)]
+    try:
+        return str(int(digits, base))
+    except ValueError:
+        return raw
 
 
 if __name__ == "__main__":
