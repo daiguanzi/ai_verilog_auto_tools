@@ -31,7 +31,10 @@
 │   ├── 02_vending_machine/ (FSM + pulsed inputs)
 │   ├── 03_debounce/        (FSM + timer + pulse output)
 │   ├── 04_uart_tx/         (dual-counter + serial)
-│   └── 05_fifo/            (circular buffer + pointers)
+│   ├── 05_fifo/            (circular buffer + pointers)
+│   ├── 06_spi_master/      (clock phase + shift + CS)
+│   ├── 07_counter/         (up/down + load + enable)
+│   └── 08_config_demo/     (project.json includes/defines/parameters)
 │
 ├── templates/             ← Project & testbench skeletons
 │   ├── project.json
@@ -84,7 +87,7 @@ outputs/<project_name>/
 - `timescale` — `["unit", "precision"]` or `"1ns/1ps"`
 
 > `sources` is a list — list multiple files for hierarchical/multi-module designs.
-> See `outputs/a2_check/` for a live example using all optional fields.
+> See `examples/08_config_demo/` for a live example using all optional fields.
 
 ---
 
@@ -249,6 +252,17 @@ After EVERY completed project (all tests pass), the agent MUST:
    - Update `updated:` date
 5. **Update index**: Add/update entry in `knowledge/_index.md`
 6. **Write project review**: Save to `reports/<project>_review.md`
+7. **Curate `outputs/` → `examples/`** (keep `outputs/` a pure scratch area):
+   - Assess whether the finished project deserves promotion to `examples/`.
+     Criteria (all): all tests pass · demonstrates a **distinct, reusable**
+     capability (not a near-duplicate of an existing example) · ideally maps to
+     a `knowledge/` entry · clean RTL + testbench.
+   - **Recommend candidates to the user first; only copy after they confirm.**
+   - On promotion: copy `src/ tb/ project.json` into `examples/NN_name/`
+     (exclude `sim_build/` and `__pycache__/`), verify it still passes, then
+     delete the `outputs/` working copy.
+   - Delete any `outputs/` copy that is byte-identical to an existing example
+     (verify with `diff -rq` before deleting).
 
 ### Review template
 

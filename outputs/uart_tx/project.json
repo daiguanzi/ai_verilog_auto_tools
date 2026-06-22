@@ -1,8 +1,0 @@
-{
-    "sources": [
-        "src/uart_tx.sv"
-    ],
-    "toplevel": "uart_tx",
-    "test_module": "tb.test_uart_tx",
-    "sim": "verilator"
-}
