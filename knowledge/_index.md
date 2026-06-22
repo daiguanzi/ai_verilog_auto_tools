@@ -8,6 +8,7 @@
 | File | Title | Severity | Updated |
 |------|-------|----------|---------|
 | [verilator_cocotb.md](simulator/verilator_cocotb.md) | Verilator + cocotb Signal Timing Model | **must-know** | 2026-06-10 |
+| [wsl_verilator_ops.md](simulator/wsl_verilator_ops.md) | WSL + Verilator/cocotb 运行要点（从 Windows 宿主调用） | **must-know** | 2026-06-22 |
 | [verilator_reference.md](simulator/verilator_reference.md) | Verilator Official Reference Summary | reference | 2026-06-10 |
 | [cocotb_reference.md](simulator/cocotb_reference.md) | cocotb Official Reference Summary | reference | 2026-06-10 |
 
@@ -20,3 +21,4 @@
 | [blocking_assign_accumulate.md](patterns/blocking_assign_accumulate.md) | Accumulating Multiple One-Hot Inputs in always_comb | medium | 2026-06-09 |
 | [robust_test_reset.md](patterns/robust_test_reset.md) | Robust Reset and Cross-Test State Management | high | 2026-06-09 |
 | [dual_counter_fsm.md](patterns/dual_counter_fsm.md) | Dual Counter FSM for Serial Protocols | high | 2026-06-10 |
+| [scoreboard_reference_model.md](patterns/scoreboard_reference_model.md) | Reference Model + Scoreboard for Self-Checking Tests | high | 2026-06-22 |

@@ -1,6 +1,7 @@
 import cocotb
 from cocotb.triggers import RisingEdge
 from cocotb.clock import Clock
+from collections import deque
 
 
 # ============================================================
@@ -72,6 +73,83 @@ async def drive_pulse(dut, signal, value):
 
 
 # ============================================================
+#  Reference Model + Scoreboard
+#  For non-trivial DUTs, don't hand-write asserts per case.
+#  Compute expected values from a SPEC-based golden model and let
+#  the scoreboard compare them against the DUT automatically.
+# ============================================================
+
+def reference_model(inputs: dict) -> dict:
+    """Golden model: expected outputs from inputs, INDEPENDENT of the RTL.
+
+    Write this from the SPEC (not by reading the RTL) — it is the source of
+    truth the scoreboard checks the DUT against. Keep it pure Python.
+
+    Example (8-bit adder with 9-bit sum):
+        return {"sum": (inputs["a"] + inputs["b"]) & 0x1FF}
+    """
+    # TODO: implement expected behavior
+    return {}
+
+
+class Scoreboard:
+    """Compare DUT outputs against reference-model expectations.
+
+    Two usage styles:
+      1. Direct  — compare a known expected vs actual right now:
+            sb.check("a=1,b=2", expected, dut.sum.value)
+      2. Queue   — for streaming/pipelined DUTs, decouple producer/consumer:
+            sb.expect(value)     # push expected (e.g. from reference_model)
+            sb.observe(value)    # push observed DUT output; pops & compares
+
+    Call sb.report() at the END of a test to assert overall pass/fail.
+    """
+
+    def __init__(self, dut=None, name="scoreboard"):
+        self.dut = dut
+        self.name = name
+        self.passed = 0
+        self.failed = 0
+        self.failures = []
+        self._expected = deque()
+
+    def check(self, label, expected, actual):
+        exp, act = int(expected), int(actual)
+        if act == exp:
+            self.passed += 1
+            cocotb.log.info(f"  [{self.name}] OK  {label}: {act}")
+        else:
+            self.failed += 1
+            msg = f"{label}: expected {exp}, got {act}"
+            self.failures.append(msg)
+            cocotb.log.error(f"  [{self.name}] MISMATCH  {msg}")
+        return self
+
+    def expect(self, value):
+        """Queue an expected value (typically from reference_model)."""
+        self._expected.append(int(value))
+
+    def observe(self, actual):
+        """Compare an observed DUT output against the oldest queued expected."""
+        idx = self.passed + self.failed
+        if not self._expected:
+            self.failed += 1
+            self.failures.append(f"stream[{idx}]: unexpected output {int(actual)} (queue empty)")
+            cocotb.log.error(f"  [{self.name}] unexpected output {int(actual)}")
+            return
+        self.check(f"stream[{idx}]", self._expected.popleft(), actual)
+
+    def report(self):
+        total = self.passed + self.failed
+        cocotb.log.info(f"  [{self.name}] {self.passed}/{total} checks passed")
+        if self._expected:
+            cocotb.log.warning(f"  [{self.name}] {len(self._expected)} expected value(s) never observed")
+        assert self.failed == 0 and not self._expected, (
+            f"{self.name}: {self.failed} mismatch(es): " + "; ".join(self.failures[:10])
+        )
+
+
+# ============================================================
 #  Test Scenarios — one @cocotb.test() per scenario
 # ============================================================
 
@@ -131,3 +209,25 @@ async def test_error_handling(dut):
     # - Back-to-back rapid operations
 
     cocotb.log.info("PASSED: error handling")
+
+
+@cocotb.test()
+async def test_against_reference_model(dut):
+    """Drive a sequence and check each DUT output against reference_model()."""
+    c = Clock(dut.clk, 10, "ns")
+    cocotb.start_soon(c.start())
+    await reset_and_clear(dut)
+
+    sb = Scoreboard(dut, "ref_check")
+
+    # TODO: replace with real stimulus, signals, and sampling timing.
+    # for a, b in [(1, 2), (255, 1), (100, 100)]:
+    #     dut.a.value = a
+    #     dut.b.value = b
+    #     await RisingEdge(dut.clk)
+    #     await RisingEdge(dut.clk)          # sample registered outputs here
+    #     exp = reference_model({"a": a, "b": b})["sum"]
+    #     sb.check(f"a={a},b={b}", exp, dut.sum.value)
+
+    sb.report()
+    cocotb.log.info("PASSED: reference-model checks")

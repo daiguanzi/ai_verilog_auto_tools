@@ -139,6 +139,9 @@ path = create_project(name="my_module", sources=["src/my_module.sv"],
    ```
 3. One `@cocotb.test()` per scenario
 4. Use `int(dut.signal.value)` for reading, `==` for comparing
+5. For non-trivial DUTs, use the **reference model + `Scoreboard`** in the
+   template instead of per-case asserts (see
+   `knowledge/patterns/scoreboard_reference_model.md`)
 
 ### Phase 5: Iterate
 ```bash
