@@ -11,11 +11,14 @@ from typing import Optional
 
 try:
     from agent_tools.sim_driver import run_simulation as _run_sim
+    from agent_tools.sim_driver import run_lint as _run_lint
 except ImportError:
     try:
         from sim_driver import run_simulation as _run_sim
+        from sim_driver import run_lint as _run_lint
     except ImportError:
         _run_sim = None
+        _run_lint = None
 
 
 CONFIG_FILENAME = "project.json"
@@ -42,14 +45,36 @@ def load_project_config(project_dir: str) -> Optional[dict]:
     return cfg
 
 
-def run_project(project_dir: str, *, sim: str | None = None, waves: bool = False) -> dict:
+def run_project(project_dir: str, *, sim: str | None = None, waves: bool = False, lint: bool = True) -> dict:
     cfg = load_project_config(project_dir)
     if cfg is None:
         return {"pass": False, "error": f"No valid {CONFIG_FILENAME} found in {project_dir}"}
     proj = cfg["__project_dir"]
     sources = [str(Path(proj) / s) for s in cfg["sources"]]
     includes = [str(Path(proj) / i) for i in cfg.get("includes", [])]
-    return run_and_report(
+
+    lint_res = None
+    if lint and _run_lint is not None:
+        lint_res = _run_lint(
+            sources=sources,
+            hdl_toplevel=cfg["toplevel"],
+            includes=includes,
+            defines=cfg.get("defines", {}),
+            timescale=cfg.get("timescale"),
+        )
+        if lint_res.get("available") and not lint_res["pass"]:
+            return {
+                "pass": False,
+                "error": "Lint gate failed (verilator --lint-only -Wall). Fix lint errors before simulating.",
+                "lint": lint_res,
+                "tests_total": 0,
+                "tests_pass": 0,
+                "tests_fail": 0,
+                "tests_skip": 0,
+                "tests": [],
+            }
+
+    result = run_and_report(
         sources=sources,
         toplevel=cfg["toplevel"],
         test_module=cfg["test_module"],
@@ -60,6 +85,30 @@ def run_project(project_dir: str, *, sim: str | None = None, waves: bool = False
         includes=includes,
         defines=cfg.get("defines", {}),
         parameters=cfg.get("parameters", {}),
+        timescale=cfg.get("timescale"),
+    )
+    if lint_res is not None:
+        result["lint"] = lint_res
+    return result
+
+
+def lint_project(project_dir: str) -> dict:
+    cfg = load_project_config(project_dir)
+    if cfg is None:
+        return {"available": False, "pass": False,
+                "errors": [f"No valid {CONFIG_FILENAME} found in {project_dir}"],
+                "warnings": [], "raw": ""}
+    if _run_lint is None:
+        return {"available": False, "pass": True, "errors": [], "warnings": [],
+                "raw": "run_lint not importable"}
+    proj = cfg["__project_dir"]
+    sources = [str(Path(proj) / s) for s in cfg["sources"]]
+    includes = [str(Path(proj) / i) for i in cfg.get("includes", [])]
+    return _run_lint(
+        sources=sources,
+        hdl_toplevel=cfg["toplevel"],
+        includes=includes,
+        defines=cfg.get("defines", {}),
         timescale=cfg.get("timescale"),
     )
 
@@ -449,11 +498,12 @@ if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser(description="FPGA Project Tools")
-    p.add_argument("command", choices=["scan", "summary", "find-top", "run"])
+    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint"])
     p.add_argument("project_dir", help="Path to project directory")
     p.add_argument("--json", action="store_true", help="Output JSON")
     p.add_argument("--sim", default="verilator", help="Simulator for run command")
     p.add_argument("--waves", action="store_true", help="Enable waveform dump for run command")
+    p.add_argument("--no-lint", action="store_true", help="Skip the pre-sim lint gate (run command)")
 
     args = p.parse_args()
 
@@ -480,12 +530,19 @@ if __name__ == "__main__":
             print("No modules found.")
 
     elif args.command == "run":
-        result = run_project(args.project_dir, sim=args.sim, waves=args.waves)
+        result = run_project(args.project_dir, sim=args.sim, waves=args.waves, lint=not args.no_lint)
         if args.json:
             print(json.dumps(result, indent=2, ensure_ascii=False))
         else:
             status = "PASS" if result["pass"] else "FAIL"
             print(f"\n{'='*60}")
+            lint = result.get("lint")
+            if lint and lint.get("available"):
+                lstatus = "PASS" if lint["pass"] else "FAIL"
+                print(f"  LINT: {lstatus} "
+                      f"({len(lint['errors'])} errors, {len(lint['warnings'])} warnings)")
+                for e in lint.get("errors", [])[:10]:
+                    print(f"    [ERROR] {e[:180]}")
             print(f"  SIMULATION RESULT: {status}")
             if result.get("error"):
                 print(f"  Error: {result['error']}")
@@ -500,3 +557,26 @@ if __name__ == "__main__":
                     print(f"         {t['failure'][:200]}")
             print(f"{'='*60}\n")
         sys.exit(0 if result["pass"] else 1)
+
+    elif args.command == "lint":
+        res = lint_project(args.project_dir)
+        if args.json:
+            print(json.dumps(res, indent=2, ensure_ascii=False))
+        else:
+            if not res.get("available", False):
+                print(f"LINT SKIPPED: {res.get('raw', 'verilator not available')}")
+                if res.get("errors"):
+                    for e in res["errors"]:
+                        print(f"  {e}")
+            else:
+                status = "PASS" if res["pass"] else "FAIL"
+                print(f"\n{'='*60}")
+                print(f"  LINT RESULT: {status}")
+                print(f"  Errors: {len(res['errors'])}  Warnings: {len(res['warnings'])}")
+                print(f"{'='*60}")
+                for e in res["errors"][:20]:
+                    print(f"  [ERROR] {e[:200]}")
+                for w in res["warnings"][:20]:
+                    print(f"  [WARN]  {w[:200]}")
+                print(f"{'='*60}\n")
+        sys.exit(0 if res.get("pass", False) else 1)

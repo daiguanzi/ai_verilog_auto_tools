@@ -60,7 +60,7 @@
 ### 阶段 A — 加固地基（当前）
 - [x] A1 用 `verilator --xml-only` 替换 `fpga_tools.py` 的正则模块解析（带正则回退），可靠提取端口/参数/层次/自动找 top（2026-06-22）
 - [x] A2 扩展 `project.json`：include 目录、宏定义、参数覆盖、timescale、多文件（2026-06-22，验证项目 `outputs/a2_check`）
-- [ ] A3 加 lint 门禁：生成 RTL 先过 `verilator --lint-only -Wall` 再仿真
+- [x] A3 加 lint 门禁：生成 RTL 先过 `verilator --lint-only -Wall -Wno-fatal` 再仿真（2026-06-22，错误阻断、警告仅提示；`run` 默认门禁，可 `--no-lint` 跳过，另有独立 `lint` 命令）
 - [ ] A4 testbench 模板补充 scoreboard + 参考模型骨架
 
 ### 阶段 B — 复杂度升级

@@ -73,7 +73,8 @@
 - ✅ A1 完成：`fpga_tools.py` 改用 `verilator --xml-only` 解析（带正则回退），可靠提取端口位宽/参数默认值/自动找 top。
 - ✅ A2 完成：`project.json` 支持 `includes`/`defines`/`parameters`/`timescale`/多文件，验证项目 `outputs/a2_check` 2/2 PASS，旧项目无回归。
 - ✅ 整理 outputs→examples：提拔 `06_spi_master`(4/4)、`07_counter`(6/6)、`08_config_demo`(2/2)；清空 outputs 草稿区；提拔机制写入 `AGENTS.md §8`。examples 现共 8 个（01–08）。
-下一步：A3 加 lint 门禁（生成 RTL 先过 `verilator --lint-only -Wall` 再仿真）。
+- ✅ A3 完成：lint 门禁（`verilator --lint-only -Wall -Wno-fatal`）。错误阻断仿真、警告仅提示；`run` 默认先 lint，可 `--no-lint` 跳过；新增独立 `lint` 命令。验证：干净示例过、位宽截断报警告、未定义信号被拦下。
+下一步：A4 testbench 模板补充 scoreboard + 参考模型骨架（阶段 A 最后一步）。
 
 ---
 

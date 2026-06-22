@@ -187,6 +187,67 @@ def _parse_results_xml(xml_path: Path) -> dict:
     }
 
 
+def run_lint(
+    sources: list[str],
+    *,
+    hdl_toplevel: str | None = None,
+    includes: list[str] | None = None,
+    defines: dict | None = None,
+    timescale: object = None,
+) -> dict:
+    """Static-check RTL with `verilator --lint-only -Wall` (no build/sim).
+
+    Returns {available, pass, errors, warnings, raw}. `pass` is True when there
+    are no lint ERRORS (warnings do not fail the gate). If verilator is missing,
+    `available` is False and the gate is treated as a pass (skipped).
+    """
+    import shutil
+
+    if shutil.which("verilator") is None:
+        return {"available": False, "pass": True, "errors": [], "warnings": [],
+                "raw": "verilator not found; lint skipped"}
+
+    cmd = ["verilator", "--lint-only", "-Wall", "-Wno-fatal"]
+    if hdl_toplevel:
+        cmd += ["--top-module", hdl_toplevel]
+    for inc in (includes or []):
+        cmd.append("-I" + str(Path(inc).resolve()))
+    for key, val in (defines or {}).items():
+        cmd.append(f"-D{key}={val}" if val is not None else f"-D{key}")
+    ts = _norm_timescale(timescale)
+    if ts:
+        cmd += ["--timescale", f"{ts[0]}/{ts[1]}"]
+    cmd += [str(Path(s).resolve()) for s in sources]
+
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+    except Exception as e:
+        return {"available": True, "pass": False,
+                "errors": [f"lint invocation failed: {str(e)[:300]}"],
+                "warnings": [], "raw": ""}
+
+    out = (proc.stdout or "") + (proc.stderr or "")
+    errors, warnings = _parse_lint(out)
+    return {
+        "available": True,
+        "pass": len(errors) == 0,
+        "errors": errors,
+        "warnings": warnings,
+        "raw": out,
+    }
+
+
+def _parse_lint(text: str) -> tuple[list[str], list[str]]:
+    errors, warnings = [], []
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith("%Error"):
+            errors.append(s)
+        elif s.startswith("%Warning"):
+            warnings.append(s)
+    return errors, warnings
+
+
 if __name__ == "__main__":
     import argparse
 

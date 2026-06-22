@@ -96,8 +96,10 @@ outputs/<project_name>/
 ```bash
 # Use relative paths from workspace root!
 python agent_tools/fpga_tools.py summary examples/01_adder
+python agent_tools/fpga_tools.py lint examples/01_adder
 python agent_tools/fpga_tools.py run examples/01_adder
 python agent_tools/fpga_tools.py run outputs/my_project --json
+python agent_tools/fpga_tools.py run outputs/my_project --no-lint
 ```
 
 All commands run from the **workspace root** (where this AGENTS.md lives).
@@ -295,6 +297,9 @@ Date: YYYY-MM-DD
 - **Distinguish pulse vs level.** Use `drive_pulse` (3-edge) for action triggers (send, wr_en, coin). Use `apply_and_settle` (2-edge) for persistent controls (enable, up_down, mode). Wrong choice = double-action bugs.
 - **Use `int(value)`, not `.integer`.** cocotb Logic objects don't have `.integer` attribute
 - **Sources are workspace-relative.** All paths in project.json are relative to project root
+- **Lint before sim.** `run` auto-runs `verilator --lint-only -Wall -Wno-fatal` first; lint
+  ERRORS block simulation (fix them), WARNINGS (width truncation, undriven, unused) only
+  inform but should be reviewed since sim can't catch them. Use `--no-lint` only to bypass.
 
 ---
 
