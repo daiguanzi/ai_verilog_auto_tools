@@ -78,8 +78,9 @@
 
 **🎉 阶段 A（加固地基）全部完成（A1–A4）。** 正在进行**阶段 B：复杂度升级**。
 - ✅ B1 完成：多模块/层次化工程支持——`print_project_summary` 新增依赖树；2 层示例 `outputs/mac_unit`（multiplier+mac_unit）4/4 PASS。
+- ✅ B2 完成：接入 `cocotbext-axi 0.1.28`——testbench 用 `AxiLiteMaster` 读写 DUT 寄存器（示例 `outputs/axil_regs` 3/3 PASS）；新增知识 `cocotbext_axi.md`。
 
-下一步：B2 接入 `cocotbext-axi` 验证 AXI-Lite / AXI-Stream 设计。
+下一步：B3 随机化 / 覆盖率 / scoreboard 验证模式。
 
 ---
 

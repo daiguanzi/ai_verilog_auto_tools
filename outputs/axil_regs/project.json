@@ -1,0 +1,6 @@
+{
+    "sources": ["src/axil_regfile.sv"],
+    "toplevel": "axil_regfile",
+    "test_module": "tb.test_axil_regs",
+    "sim": "verilator"
+}

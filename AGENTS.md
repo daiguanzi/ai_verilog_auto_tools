@@ -34,7 +34,8 @@
 │   ├── 05_fifo/            (circular buffer + pointers)
 │   ├── 06_spi_master/      (clock phase + shift + CS)
 │   ├── 07_counter/         (up/down + load + enable)
-│   └── 08_config_demo/     (project.json includes/defines/parameters)
+│   ├── 08_config_demo/     (project.json includes/defines/parameters)
+│   └── 09_mac_unit/        (multi-module hierarchy + dep tree)
 │
 ├── templates/             ← Project & testbench skeletons
 │   ├── project.json
