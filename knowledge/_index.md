@@ -24,3 +24,4 @@
 | [robust_test_reset.md](patterns/robust_test_reset.md) | Robust Reset and Cross-Test State Management | high | 2026-06-09 |
 | [dual_counter_fsm.md](patterns/dual_counter_fsm.md) | Dual Counter FSM for Serial Protocols | high | 2026-06-10 |
 | [scoreboard_reference_model.md](patterns/scoreboard_reference_model.md) | Reference Model + Scoreboard for Self-Checking Tests | high | 2026-06-22 |
+| [randomized_testing.md](patterns/randomized_testing.md) | Randomized Testing with Reference Model + Scoreboard | high | 2026-06-29 |

@@ -2,6 +2,7 @@ import cocotb
 from cocotb.triggers import RisingEdge
 from cocotb.clock import Clock
 from collections import deque
+import random
 
 
 # ============================================================
@@ -90,6 +91,27 @@ def reference_model(inputs: dict) -> dict:
     """
     # TODO: implement expected behavior
     return {}
+
+
+def random_test_sequence(n: int, **ranges):
+    """Generate N random test vectors within given ranges.
+
+    Each kwarg key=signal_name, value=(min, max). Yields dicts compatible
+    with reference_model() for scoreboard comparison.
+
+    Example:
+        seed = 42  # optional: random.seed(seed) for reproducibility
+        for vec in random_test_sequence(500, a=(0, 255), b=(0, 255)):
+            dut.a.value = vec["a"]
+            dut.b.value = vec["b"]
+            await RisingEdge(dut.clk)
+            await RisingEdge(dut.clk)
+            exp = reference_model(vec)["sum"]
+            sb.check(f"a={vec['a']},b={vec['b']}", exp, dut.sum.value)
+        sb.report()
+    """
+    for _ in range(n):
+        yield {k: random.randint(v[0], v[1]) for k, v in ranges.items()}
 
 
 class Scoreboard:
@@ -231,3 +253,30 @@ async def test_against_reference_model(dut):
 
     sb.report()
     cocotb.log.info("PASSED: reference-model checks")
+
+
+@cocotb.test()
+async def test_randomized(dut):
+    """Random stress test: scoreboard-verify a large number of random inputs.
+
+    Use a fixed seed for reproducibility across CI runs, or set seed=None
+    for variation. Pair with reference_model() + Scoreboard().
+    """
+    c = Clock(dut.clk, 10, "ns")
+    cocotb.start_soon(c.start())
+    await reset_and_clear(dut)
+
+    random.seed(42)  # reproducible
+    sb = Scoreboard(dut, "random_seed42")
+
+    # TODO: replace ranges with your DUT signal bounds
+    # for vec in random_test_sequence(1000, a=(0, 255), b=(0, 255)):
+    #     dut.a.value = vec["a"]
+    #     dut.b.value = vec["b"]
+    #     await RisingEdge(dut.clk)
+    #     await RisingEdge(dut.clk)
+    #     exp = reference_model(vec)["sum"]
+    #     sb.check(f"a={vec['a']},b={vec['b']}", exp, dut.sum.value)
+
+    sb.report()
+    cocotb.log.info("PASSED: randomized test (N vectors via random_test_sequence)")

@@ -66,7 +66,7 @@
 ### 阶段 B — 复杂度升级
 - [x] B1 多模块/层次化工程支持（2026-06-22，`print_project_summary` 新增依赖树、多模块示例 `outputs/mac_unit` 4/4 PASS）
 - [x] B2 接入 `cocotbext-axi`，验证 AXI-Lite / AXI-Stream 设计（2026-06-22，安装 `cocotbext-axi 0.1.28`、示例 `outputs/axil_regs` 3/3 PASS、知识 `cocotbext_axi.md`）
-- [ ] B3 随机化 / 覆盖率 / scoreboard 验证模式
+- [x] B3 随机化 / 覆盖率 / scoreboard 验证模式（2026-06-29，`random_test_sequence` + 种子 + scoreboard；验证 `b3_rand_check` 500 向量 2/2，知识 `randomized_testing.md`）
 - [ ] B4 知识库新增：总线、CDC（跨时钟域）、复位同步
 
 ### 阶段 C — IP 双轨战略
