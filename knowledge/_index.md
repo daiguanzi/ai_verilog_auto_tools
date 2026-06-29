@@ -25,3 +25,6 @@
 | [dual_counter_fsm.md](patterns/dual_counter_fsm.md) | Dual Counter FSM for Serial Protocols | high | 2026-06-10 |
 | [scoreboard_reference_model.md](patterns/scoreboard_reference_model.md) | Reference Model + Scoreboard for Self-Checking Tests | high | 2026-06-22 |
 | [randomized_testing.md](patterns/randomized_testing.md) | Randomized Testing with Reference Model + Scoreboard | high | 2026-06-29 |
+| [axi_bus_verification.md](patterns/axi_bus_verification.md) | AXI-Lite/Stream 总线验证模式（cocotb + Verilator） | high | 2026-06-29 |
+| [cdc_guidelines.md](patterns/cdc_guidelines.md) | CDC（跨时钟域）要点——仿真看不出来的最危险问题 | **must-know** | 2026-06-29 |
+| [reset_strategy.md](patterns/reset_strategy.md) | 复位同步与复位策略——为什么异步复位不可靠 | high | 2026-06-29 |

@@ -85,9 +85,9 @@
   Verilator **不能**直接编译导出模型（加密+SVA+deassign）；Tcl 批处理调 IP 生成可行。
   `ip_models/` 替身库为 Verilator 唯一路径，xsim 为备选。详见 `knowledge/simulator/vivado_ip_verilator_gap.md`。
 
-- ✅ B3 完成：随机化测试——`random_test_sequence` + 固定种子 + scoreboard 验证模式（500 向量 2/2 PASS，知识 `randomized_testing.md`）。
+- ✅ B4 完成：知识库新增 `axi_bus_verification.md`（总线验证） / `cdc_guidelines.md`（跨时钟域，**must-know**） / `reset_strategy.md`（复位策略）。
 
-下一步：B4 知识库新增：总线、CDC（跨时钟域）、复位同步。
+**🎉 阶段 B（复杂度升级）全部完成（B1–B4）。** 进入**阶段 C：IP 双轨战略**（C1 建 `ip_models/` 共享替身库 → C2 契约测试 → C3 IP 扫描器 → C4 `project.json` IP 段 → C6 Agent Tcl 建 IP）。
 
 ---
 
