@@ -9,6 +9,7 @@
 |------|-------|----------|---------|
 | [verilator_cocotb.md](simulator/verilator_cocotb.md) | Verilator + cocotb Signal Timing Model | **must-know** | 2026-06-10 |
 | [wsl_verilator_ops.md](simulator/wsl_verilator_ops.md) | WSL + Verilator/cocotb 运行要点（从 Windows 宿主调用） | **must-know** | 2026-06-22 |
+| [vivado_ip_verilator_gap.md](simulator/vivado_ip_verilator_gap.md) | Vivado IP 核与 Verilator 兼容性实测（2018.2 FIFO） | **must-know** | 2026-06-29 |
 | [cocotbext_axi.md](simulator/cocotbext_axi.md) | cocotbext-axi 快速上手（API 要点与坑） | high | 2026-06-22 |
 | [verilator_reference.md](simulator/verilator_reference.md) | Verilator Official Reference Summary | reference | 2026-06-10 |
 | [cocotb_reference.md](simulator/cocotb_reference.md) | cocotb Official Reference Summary | reference | 2026-06-10 |

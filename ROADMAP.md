@@ -74,7 +74,9 @@
 - [ ] C2 每个替身配契约测试（证明与 Xilinx IP 规格一致）
 - [ ] C3 IP 扫描器：解析 `.xci/.xpr`，列出 IP / 版本 / 参数
 - [ ] C4 `project.json` 增加 `ip` 段（仿真→model，构建→真 .xci）
-- [ ] C5 探针：实测 2018.2 `export_simulation` / xsim 速度，决定是否提供 xsim 后端
+- [x] C5 探针：实测 2018.2 `export_simulation` / xsim 速度（2026-06-29）
+  - 结论：Vivado 目录 IP（如 `fifo_generator`）仿真模型含加密段 + SVA + `deassign`；**Verilator 不能直接编译**。`ip_models/` 替身库是主要路径。Tcl 批处理调 IP 生成完全可行。
+- [ ] C6 Agent 生成 Vivado Tcl 来创建/配置标准 IP 核 + 导出仿真文件 + 尝试接入 Verilator（替身库维护对照）
 
 ### 阶段 D — 上板轨道
 - [ ] D1 Windows 批处理调用 Vivado 2018.2（`vivado -mode batch -source *.tcl`）：综合→时序→实现→bitstream
@@ -90,8 +92,8 @@
 
 ## 3. 数据探针（动手阶段 A 前后并行进行，给决策提供真实数据）
 
-- [ ] P1 实测一个带 IP 工程在 Vivado 2018.2 上的 xsim 编译/仿真耗时（回答"到底多慢"）
-- [ ] P2 验证能否从本环境批处理调起 Windows Vivado（确认 vivado.bat 路径与调用方式）
+- [x] P1 实测一个带 IP 工程在 Vivado 2018.2 上的仿真模型导出与 Verilator 编译（2026-06-29）→ 结论：不能直接编译，替身是主要路径。
+- [x] P2 验证能否从本环境批处理调起 Windows Vivado（2026-06-29）→ 可以，`vivado -mode batch -source script.tcl` 在 `C:\Xilinx\Vivado\2018.2` 正常工作。
 
 ---
 

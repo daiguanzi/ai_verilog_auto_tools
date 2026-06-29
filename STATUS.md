@@ -79,6 +79,11 @@
 **🎉 阶段 A（加固地基）全部完成（A1–A4）。** 正在进行**阶段 B：复杂度升级**。
 - ✅ B1 完成：多模块/层次化工程支持——`print_project_summary` 新增依赖树；2 层示例 `outputs/mac_unit`（multiplier+mac_unit）4/4 PASS。
 - ✅ B2 完成：接入 `cocotbext-axi 0.1.28`——testbench 用 `AxiLiteMaster` 读写 DUT 寄存器（示例 `outputs/axil_regs` 3/3 PASS）；新增知识 `cocotbext_axi.md`。
+- ✅ 提拔 `axil_regs` → `examples/10_axil_regs`（AXI-Lite 寄存器文件 + BFM）。
+
+**阶段 C 前置探针完成**：实测 Vivado 2018.2 的 IP 核（`fifo_generator`），结论——
+  Verilator **不能**直接编译导出模型（加密+SVA+deassign）；Tcl 批处理调 IP 生成可行。
+  `ip_models/` 替身库为 Verilator 唯一路径，xsim 为备选。详见 `knowledge/simulator/vivado_ip_verilator_gap.md`。
 
 下一步：B3 随机化 / 覆盖率 / scoreboard 验证模式。
 
