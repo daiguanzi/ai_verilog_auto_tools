@@ -64,7 +64,7 @@
 - [x] A4 testbench 模板补充 scoreboard + 参考模型骨架（2026-06-22，`Scoreboard` 类支持 direct/queue 两种用法 + `reference_model` 骨架 + 演示测试，验证 `outputs/a4_check` 2/2）
 
 ### 阶段 B — 复杂度升级
-- [ ] B1 多模块/层次化工程支持
+- [x] B1 多模块/层次化工程支持（2026-06-22，`print_project_summary` 新增依赖树、多模块示例 `outputs/mac_unit` 4/4 PASS）
 - [ ] B2 接入 `cocotbext-axi`，验证 AXI-Lite / AXI-Stream 设计
 - [ ] B3 随机化 / 覆盖率 / scoreboard 验证模式
 - [ ] B4 知识库新增：总线、CDC（跨时钟域）、复位同步

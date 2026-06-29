@@ -76,7 +76,10 @@
 - ✅ A3 完成：lint 门禁（`verilator --lint-only -Wall -Wno-fatal`）。错误阻断仿真、警告仅提示；`run` 默认先 lint，可 `--no-lint` 跳过；新增独立 `lint` 命令。验证：干净示例过、位宽截断报警告、未定义信号被拦下。
 - ✅ A4 完成：`templates/tb_comprehensive.py` 加入 `Scoreboard`（direct/queue 两用法）+ `reference_model` 骨架 + 演示测试；新增知识条目 `patterns/scoreboard_reference_model.md`。验证 `outputs/a4_check` 2/2。
 
-**🎉 阶段 A（加固地基）全部完成（A1–A4）。** 下一步进入**阶段 B：复杂度升级**（B1 多模块层次化 → B2 接入 `cocotbext-axi` 验证 AXI → B3 随机化/覆盖率/scoreboard → B4 知识库总线/CDC/复位）。
+**🎉 阶段 A（加固地基）全部完成（A1–A4）。** 正在进行**阶段 B：复杂度升级**。
+- ✅ B1 完成：多模块/层次化工程支持——`print_project_summary` 新增依赖树；2 层示例 `outputs/mac_unit`（multiplier+mac_unit）4/4 PASS。
+
+下一步：B2 接入 `cocotbext-axi` 验证 AXI-Lite / AXI-Stream 设计。
 
 ---
 

@@ -200,8 +200,26 @@ def print_project_summary(project_dir: str) -> str:
         if f["sub_modules"]:
             lines.append(f"           uses: {', '.join(f['sub_modules'])}")
         lines.append("")
+
+    mod_map = {f["module"]: f for f in project["files"]}
+    if top and len(mod_map) > 1:
+        lines.append("Dependency Tree:")
+        _add_tree(lines, mod_map, top["module"], "    ")
+        lines.append("")
+
     lines.append("=" * 70)
     return "\n".join(lines)
+
+
+def _add_tree(lines, mod_map, mod_name, prefix):
+    info = mod_map.get(mod_name)
+    if info is None:
+        lines.append(f"  {prefix}{mod_name} (external)")
+        return
+    subs = info.get("sub_modules", [])
+    lines.append(f"  {prefix}{mod_name}")
+    for sub in subs:
+        _add_tree(lines, mod_map, sub, prefix + "    ")
 
 
 def run_and_report(

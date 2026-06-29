@@ -1,0 +1,6 @@
+{
+    "sources": ["src/multiplier.sv", "src/mac_unit.sv"],
+    "toplevel": "mac_unit",
+    "test_module": "tb.test_mac_unit",
+    "sim": "verilator"
+}
