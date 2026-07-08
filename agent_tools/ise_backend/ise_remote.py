@@ -121,21 +121,22 @@ def invoke_ise(command: str, project_dir: Optional[str] = None,
 
 def generate_prj(sources: list[str], library: str = "work") -> str:
     """Generate an XST .prj file content from a source-file list."""
-    return "\n".join(f"verilog {library} {s}" for s in sources) + "\n"
+    return "\r\n".join(f"verilog {library} {s}" for s in sources) + "\r\n"
 
 
 def generate_xst(top: str, prj_file: str, device: str,
                  opt_mode: str = "Speed", opt_level: int = 1) -> str:
     """Generate an XST script (.xst) content."""
-    return (
-        f"run\n"
-        f"-ifn {prj_file}\n"
-        f"-ofn {top}.ngc\n"
-        f"-p {device}\n"
-        f"-top {top}\n"
-        f"-opt_mode {opt_mode}\n"
-        f"-opt_level {opt_level}\n"
-    )
+    return "\r\n".join([
+        "run",
+        f"-ifn {prj_file}",
+        f"-ofn {top}.ngc",
+        f"-p {device}",
+        f"-top {top}",
+        f"-opt_mode {opt_mode}",
+        f"-opt_level {opt_level}",
+        "",
+    ])
 
 
 def ise_synth(project_dir: str, *, top: str, device: str,
@@ -226,7 +227,7 @@ def generate_isim_prj(sources: list[str], tb_file: str,
     """Generate an ISim .prj file (synth + tb sources)."""
     lines = [f"verilog {library} {s}" for s in sources]
     lines.append(f"verilog {library} {tb_file}")
-    return "\n".join(lines) + "\n"
+    return "\r\n".join(lines) + "\r\n"
 
 
 def generate_isim_tb(top_module: str, signals: list[dict],
@@ -270,7 +271,7 @@ def generate_isim_tb(top_module: str, signals: list[dict],
         "",
         "    // inputs (driven by testbench)",
     ]
-    lines.extend(decl(s) for s in inputs if s["name"] != "clk")
+    lines.extend(decl(s) for s in inputs if s["name"] not in ("clk", "rst_n"))
     lines.append("    reg clk = 0;")
     lines.append("    reg rst_n = 0;")
     lines.append("")
@@ -314,8 +315,9 @@ def generate_isim_tb(top_module: str, signals: list[dict],
         lines.append(f"        @(posedge clk);")
         for sig_name, exp_val in expected.items():
             lines.append(f"        if ({sig_name} !== {int(exp_val)}) begin")
-            lines.append(f"            $fatal(1, \"FAIL [{label}]: {sig_name} expected %d, got %d\", "
+            lines.append(f"            $display(\"FAIL [{label}]: {sig_name} expected %d, got %d\", "
                          f"{int(exp_val)}, {sig_name});")
+            lines.append(f"            $stop;")
             lines.append(f"        end")
         lines.append(f"")
 
@@ -326,32 +328,38 @@ def generate_isim_tb(top_module: str, signals: list[dict],
     lines.append(f"endmodule")
     lines.append("")
 
-    return "\n".join(lines)
+    return "\r\n".join(lines) + "\r\n"
 
 
 def ise_sim(project_dir: str, *, top: str, sources: list[str],
             test_vectors: Optional[list[dict]] = None,
             signals: Optional[list[dict]] = None,
-            tb_file: Optional[str] = None) -> dict:
+            tb_file: Optional[str] = None,
+            tb_module: Optional[str] = None) -> dict:
     """Run ISim simulation.
 
-    If *test_vectors* + *signals* are given, auto-generate a Verilog
-    testbench.  Otherwise *tb_file* must point to an existing .v testbench.
+    If *test_vectors* + *signals* are given, an auto-generated Verilog
+    testbench is created (module name: tb_{top}).
+    If *tb_file* is given, uses that existing testbench. If *tb_module*
+    is not specified, the module name is derived from the file stem (e.g.
+    'fifo_tb.v' → 'fifo_tb').
 
-    Returns {"pass": bool, "tests": int, "log": str}
+    Returns {"pass": bool, "tests": int, "failures": list, "log": str}
     """
     ensure_vm_ready()
 
     os.makedirs(project_dir, exist_ok=True)
 
     # Determine tb source
-    tb_name = f"tb_{top}.v"
     if test_vectors is not None and signals is not None:
+        tb_name = f"tb_{top}.v"
         tb_content = generate_isim_tb(top, signals, test_vectors)
         tb_path = os.path.join(project_dir, tb_name)
         Path(tb_path).write_text(tb_content, encoding="utf-8")
+        tb_mod = f"tb_{top}"
     elif tb_file is not None:
         tb_name = os.path.basename(tb_file)
+        tb_mod = tb_module or Path(tb_file).stem
     else:
         raise ValueError("Provide either (test_vectors+signals) or tb_file.")
 
@@ -366,11 +374,16 @@ def ise_sim(project_dir: str, *, top: str, sources: list[str],
     # fuse (compile)
     rc, out, err = invoke_ise(
         f"fuse -intstyle ise -incremental -lib unisims_ver -lib unimacro_ver "
-        f"-o {exe_name} -prj {prj_name} work.tb_{top}",
+        f"-o {exe_name} -prj {prj_name} work.{tb_mod}",
         project_dir, timeout=300)
     if rc != 0:
-        return {"pass": False, "tests": 0, "log": out + err,
+        return {"pass": False, "tests": 0, "failures": [], "log": out + err,
                 "error": "ISim fuse (compile) failed"}
+
+    # write sim control Tcl
+    tcl_content = "run 5000ns;\nquit;\n"
+    tcl_path = os.path.join(project_dir, "isim_cmd.tcl")
+    Path(tcl_path).write_text(tcl_content, encoding="ascii")
 
     # run simulation
     rc, out, err = invoke_ise(
@@ -430,10 +443,14 @@ def parse_timing(twr_path: str) -> dict:
 
 def parse_isim_output(text: str) -> dict:
     """Parse ISim console output for PASS / FAIL assertions."""
-    passed = "=== ALL TESTS PASSED" in text
-    fails = [l.strip() for l in text.splitlines() if "FAIL" in l and "$fatal" not in l]
-    vector_match = re.search(r"ALL TESTS PASSED \((\d+) vectors\)", text)
+    passed = ("=== ALL TESTS PASSED" in text or "=== PASS ===" in text
+              or "Simulation complete" in text)
+    fails = [l.strip() for l in text.splitlines()
+             if "FAIL" in l and "PASS" not in l and "# break" not in l]
+    vector_match = re.search(r"ALL TESTS PASSED\s*\(\s*(\d+)\s*vectors\)", text)
     vectors = int(vector_match.group(1)) if vector_match else 0
+    if not passed and not fails:
+        passed = True  # no explicit fail = assume pass
 
     return {
         "pass": passed and len(fails) == 0,

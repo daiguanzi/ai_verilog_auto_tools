@@ -62,8 +62,21 @@ ise_synth(project_dir, top="my_design", device="xc6slx9-2-csg324",
           sources=["module1.v", "top.v"])
 ```
 
-## 启用条件
-- `project.json` 中有 `ise` 段（指定 device/family）
-- 或用户明确要求用 ISE
-- 或参考资料中有 `.xise` 项目文件
-- 或目标器件为 Spartan-6/Virtex-6 等 ISE-only 系列
+## 关键约束——ISE/ISim 只支持 Verilog-2001
+
+**ISim 不支持 SystemVerilog。** `logic`、`always_ff`、SV 端口声明等 SV 关键词
+会报 `HDLCompiler:1059 - logic is an unknown type`。使用 ISE 的项目必须写
+**纯 Verilog-2001**（`wire`/`reg`、`always @(...)`、传统端口列表）。
+
+## 文件格式约束
+生成 `.prj`、`.xst` 等配置文件时**必须用 CRLF（`\r\n`）行尾**，否则 ISE
+Windows 工具可能读不到正确的文件列表（`ERROR:Simulator:702`）。
+
+## 实测验证结果（2026-07-08）
+| 测试项 | 结果 |
+|--------|------|
+| VM 自动启动（从 saved state 恢复） | ✅ ~5s |
+| guestcontrol 通信 | ✅ |
+| `fuse` + ISim（已有 hand-written TB） | ✅ fifo 项目 `=== PASS ===` |
+| auto-TB 生成 + ISim（纯 Verilog 加法器） | ✅ 4 向量 `=== ALL TESTS PASSED` |
+| SystemVerilog RTL + ISim | ❌ `logic`/`always_ff` 报错 |
