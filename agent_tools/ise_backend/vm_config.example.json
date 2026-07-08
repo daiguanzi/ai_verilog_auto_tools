@@ -1,0 +1,9 @@
+{
+    "vm_name": "Win7-ISE",
+    "username": "your_vm_username",
+    "password": "your_vm_password",
+    "ise_path": "C:\\Xilinx\\14.7\\ISE_DS\\ISE",
+    "host_shared": "C:\\FPGA_Projects",
+    "vm_shared": "Z:",
+    "vbox_manage": "C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe"
+}

@@ -84,6 +84,14 @@
 - [ ] D3 解析时序报告(WNS/TNS)，形成"时序不收敛→自动迭代"闭环
 - [ ] D4 知识库新增：时序收敛、约束、资源占用
 
+### 🧊 ISE VM 并行轨道（按需启用）
+> 仅在项目明确需要 ISE（用户指定 / 器件老旧 / 有 `.xise`）时才走这条线。
+> 前端仿真仍用 Verilator；ISim 仅作环境验证 + ISE 综合/bitstream。
+- [x] ISE-1 搬运 `ISE_Remote.ps1` + 建 `ise_backend/` 目录 + `vm_config.json`（2026-07-08）
+- [x] ISE-2 实现 `ise_remote.py`：VM 管理 / ISE 命令执行 / XST 综合流 / ISim 仿真 + 自动 TB 生成 / 报告解析（2026-07-08）
+- [ ] ISE-3 扩展 `project.json` 增加 `ise` 可选段 + `fpga_tools.py` 集成（检测 ISE 需求、调 ISE 后端）
+- [ ] ISE-4 实际端到端验证：用 ISE VM 跑一个 Spartan-6 工程全流程
+
 ### 阶段 E — 端到端整合
 - [ ] E1 一条命令：需求→仿真过→lint 过→时序过→bitstream
 - [ ] E2 每个真实项目跑完强制复盘进 knowledge/

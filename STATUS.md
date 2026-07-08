@@ -89,6 +89,10 @@
 
 **🎉 阶段 B（复杂度升级）全部完成（B1–B4）。** 进入**阶段 C：IP 双轨战略**（C1 建 `ip_models/` 共享替身库 → C2 契约测试 → C3 IP 扫描器 → C4 `project.json` IP 段 → C6 Agent Tcl 建 IP）。
 
+**🧊 ISE VM 并行轨道已启动**（ISE-1/ISE-2 完成）：`agent_tools/ise_backend/` 就位，
+  `ise_remote.py` 支持 VM 自动启动/命令执行/XST 综合/ISim 仿真+自动 TB 生成/报告解析。
+  知识 `ise_vm_backend.md`。下一步 ISE-3：`project.json` 集成 + `fpga_tools.py` 对接。
+
 ---
 
 ## 4. 下一步（按顺序执行）

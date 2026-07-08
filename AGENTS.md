@@ -15,7 +15,8 @@
 │   ├── sim_driver.py      ← Simulation engine (cocotb runner wrapper)
 │   ├── fpga_tools.py      ← Project scanner + CLI (scan/summary/run)
 │   ├── project_gen.py     ← Project skeleton generator
-│   └── reference_reader.py ← Reads files from reference/
+│   ├── reference_reader.py ← Reads files from reference/
+│   └── ise_backend/       ← ISE 14.7 VM backend (ise_remote.py + config)
 │
 ├── knowledge/             ← Agent-maintained knowledge base
 │   ├── _index.md          ← Master index of all knowledge items

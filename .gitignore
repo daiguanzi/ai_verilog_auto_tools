@@ -12,3 +12,6 @@ __pycache__/
 # OS files
 .DS_Store
 Thumbs.db
+
+# ISE VM credentials (contains real username/password)
+agent_tools/ise_backend/vm_config.json
