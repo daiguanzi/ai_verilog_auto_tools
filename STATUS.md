@@ -93,6 +93,11 @@
   `ise_remote.py` 支持 VM 自动启动/命令执行/XST 综合/ISim 仿真+自动 TB 生成/报告解析。
   知识 `ise_vm_backend.md`。下一步 ISE-3：`project.json` 集成 + `fpga_tools.py` 对接。
 
+**🎉 阶段 C 已启动**：扫描 reference 两个项目（rl_decov + beamform：20 个 IP 实例/5 种类型）。
+- ✅ C1 开始：`ip_models/bram/` 交付——SDP/ROM/SP_RAM、LATENCY、字节写使能，契约测试 5/5。
+  覆盖用户项目的 9 个 BRAM 实例。
+下一步：C1 继续建 FIFO 替身（覆盖 beamform 的 3 个 fifo_generator 实例）。
+
 ---
 
 ## 4. 下一步（按顺序执行）

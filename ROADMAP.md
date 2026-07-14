@@ -70,7 +70,7 @@
 - [x] B4 知识库新增：总线、CDC（跨时钟域）、复位同步（2026-06-29，`axi_bus_verification.md` / `cdc_guidelines.md` / `reset_strategy.md`）
 
 ### 阶段 C — IP 双轨战略
-- [ ] C1 建 `ip_models/` 共享替身库（FIFO、BRAM、clk_wiz、AXI 等）
+- [x] C1 建 `ip_models/` 共享替身库（2026-07-08，首个交付：`ip_models/bram/`——SDP/ROM/SP_RAM 三模式 + LATENCY + 字节写使能 + 契约测试 5/5）
 - [ ] C2 每个替身配契约测试（证明与 Xilinx IP 规格一致）
 - [ ] C3 IP 扫描器：解析 `.xci/.xpr`，列出 IP / 版本 / 参数
 - [ ] C4 `project.json` 增加 `ip` 段（仿真→model，构建→真 .xci）

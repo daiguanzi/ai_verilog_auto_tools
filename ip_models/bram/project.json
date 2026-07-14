@@ -1,0 +1,8 @@
+{
+    "sources": ["ip_bram.sv"],
+    "toplevel": "ip_bram",
+    "test_module": "tb.test_bram",
+    "sim": "verilator",
+    "parameters": {"WIDTH_A": 32, "WIDTH_B": 32, "DEPTH_A": 16, "DEPTH_B": 16,
+                   "MODE": 0, "LATENCY": 1}
+}

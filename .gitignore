@@ -15,3 +15,6 @@ Thumbs.db
 
 # ISE VM credentials (contains real username/password)
 agent_tools/ise_backend/vm_config.json
+
+# Reference projects (human-placed Vivado/ISE projects — do not commit)
+reference/

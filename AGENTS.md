@@ -18,6 +18,9 @@
 │   ├── reference_reader.py ← Reads files from reference/
 │   └── ise_backend/       ← ISE 14.7 VM backend (ise_remote.py + config)
 │
+├── ip_models/             ← Shared IP stub library (replaces vendor IPs for sim)
+│   └── bram/              ← Block RAM stub (SDP/ROM/SP_RAM, 5/5 contract tests)
+│
 ├── knowledge/             ← Agent-maintained knowledge base
 │   ├── _index.md          ← Master index of all knowledge items
 │   ├── simulator/         ← Simulator-specific quirks
