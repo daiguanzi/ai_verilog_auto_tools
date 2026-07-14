@@ -96,6 +96,8 @@
 **🎉 阶段 C 已启动**：扫描 reference 两个项目（rl_decov + beamform：20 个 IP 实例/5 种类型）。
 - ✅ C1 开始：`ip_models/bram/` 交付——SDP/ROM/SP_RAM、LATENCY、字节写使能，契约测试 5/5。
   覆盖用户项目的 9 个 BRAM 实例。
+- ✅ C1 教训沉淀：新增 `ip_stub_development.md`（**must-know**——string 参数、GPI 污染、
+  管线写法、LATENCY 语义等 5 坑）；更新 `wsl_verilator_ops.md`（第 6/7 条）。
 下一步：C1 继续建 FIFO 替身（覆盖 beamform 的 3 个 fifo_generator 实例）。
 
 ---

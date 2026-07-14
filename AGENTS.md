@@ -190,6 +190,20 @@ async def drive_pulse(dut, signal, value):
 2. Load entries under `knowledge/simulator/` for simulator quirks
 3. Load entries under `knowledge/patterns/` for reusable code patterns
 
+### Before developing an IP stub model
+**Mandatory pre-read** (these were learned the hard way):
+1. `knowledge/patterns/ip_stub_development.md` — IP 替身开发的 5 大陷阱
+2. `knowledge/patterns/robust_test_reset.md` — 跨测试 GPI 污染 + helper 封装
+3. `knowledge/patterns/delayed_input_signal.md` — GPI 写延迟 + 采样点
+4. `knowledge/simulator/wsl_verilator_ops.md` — Verilator 语法/参数限制
+
+### After completing any debugging session
+- If a problem took more than 3 iterations to fix, **write a knowledge entry**
+  or update an existing one. This is not optional — otherwise every future
+  session repeats the same debugging.
+- Check: was this problem already in the knowledge base? If yes and I didn't
+  read it → the knowledge base works but I failed to use it. If no → write it.
+
 ### Knowledge entry format
 
 ```markdown
@@ -257,13 +271,16 @@ After EVERY completed project (all tests pass), the agent MUST:
 1. **Identify lessons**: What went wrong? What was surprising?
 2. **Generalize**: Express as universal patterns, not project-specific fixes
 3. **Check for overlaps**: Search `knowledge/_index.md` for similar entries
-4. **Write or merge**:
-   - If no existing entry covers this: write a new knowledge file
-   - If existing entry overlaps: merge (consolidate) into that file
-   - Update `updated:` date
-5. **Update index**: Add/update entry in `knowledge/_index.md`
-6. **Write project review**: Save to `reports/<project>_review.md`
-7. **Curate `outputs/` → `examples/`** (keep `outputs/` a pure scratch area):
+4. **Was this lesson already in the knowledge base?** — If yes and I didn't read it
+   before starting, the knowledge base works but I failed to use it (record this
+   as a process failure). If no, I must write it now.
+5. **Write or merge**:
+    - If no existing entry covers this: write a new knowledge file
+    - If existing entry overlaps: merge (consolidate) into that file
+    - Update `updated:` date
+6. **Update index**: Add/update entry in `knowledge/_index.md`
+7. **Write project review**: Save to `reports/<project>_review.md`
+8. **Curate `outputs/` → `examples/`** (keep `outputs/` a pure scratch area):
    - Assess whether the finished project deserves promotion to `examples/`.
      Criteria (all): all tests pass · demonstrates a **distinct, reusable**
      capability (not a near-duplicate of an existing example) · ideally maps to

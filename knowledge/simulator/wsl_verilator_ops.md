@@ -36,3 +36,11 @@ related: [knowledge/simulator/verilator_cocotb.md]
 5. **Git 在 Windows 跑**：`git` 命令在 Windows PowerShell 执行（凭据由 Windows
    凭据管理器 `manager` 提供）；不要在 WSL 里 git（路径变 `/mnt/c`，凭据不共享）。
    开局先跑只读 `git branch -a / status -sb / log` 并汇报，永不自动 push。
+
+6. **String 参数不支持**：Verilator 5.036 不支持 `parameter MODE = "SDP"` 这种
+   字符串参数，会报 `Illegal character in decimal constant`。改用整数编码
+   （如 `0=SDP, 1=SP_RAM, 2=ROM`），并在 `project.json` 里填同样的整数值。
+
+7. **unpacked 数组 + generate 输出管道在 Verilator 中脆弱**：用显式命名寄存器
+   （`dout_s0, dout_s1, dout_s2`）代替 `logic [W-1:0] dout_q [0:N]` +
+   `generate` 循环。更简单、更可靠。（参见 `ip_stub_development.md`。）
