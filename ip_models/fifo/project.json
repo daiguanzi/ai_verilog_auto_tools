@@ -1,0 +1,8 @@
+{
+    "sources": ["ip_fifo.sv"],
+    "toplevel": "ip_fifo",
+    "test_module": "tb.test_fifo",
+    "sim": "verilator",
+    "parameters": {"WRITE_WIDTH": 8, "READ_WIDTH": 8, "WRITE_DEPTH": 16, "READ_DEPTH": 16,
+                   "MODE": 0, "USE_DATA_COUNT": 0}
+}

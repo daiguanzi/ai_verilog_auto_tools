@@ -87,3 +87,16 @@ Xilinx BRAM LATENCY=N 的含义：**地址在 cycle N 被锁存，数据在 cycl
 2. `robust_test_reset.md` — 跨测试清除、helper 封装
 3. `wsl_verilator_ops.md` — Verilator 语法/参数限制、CRLF 等
 4. 本文 — IP 替身特定的 Verilator 陷阱
+
+## 坑 6：FIFO 替身——空读/无效读时 dout 不能更新（FIFO 专属）
+
+**现象**：读空 FIFO 时 dout 变成了下一个内存地址的垃圾值，而不是上次读的有效值。
+**根因**：combinational `dout_d` 无条件地从 `mem[rd_ptr_q]` 组装——rd_ptr_q 在上次
+成功读后已经推进到了下一个位置，此时再读（无效读）就会读出下一个地址的值。
+**修复**：只在 `rd_en && (count >= read_units)` 时才从 mem 读，否则 `dout_d = dout_q`。
+```verilog
+for (int i = 0; i < READ_UNITS; i++)
+    dout_d[i*U +: U] = (rd_en && (count >= RD_UNITS_SZ))
+        ? mem[(rd_ptr_q + i) % MEM_DEPTH]
+        : dout_q[i*U +: U];
+```

@@ -1,3 +1,9 @@
+// ===================================================================
+//  ip_models/bram — Xilinx blk_mem_gen compatible BRAM stub
+// ===================================================================
+/* verilator lint_off WIDTHTRUNC */
+/* verilator lint_off WIDTHEXPAND */
+
 module ip_bram #(
     parameter int           WIDTH_A       = 32,
     parameter int           DEPTH_A       = 512,
