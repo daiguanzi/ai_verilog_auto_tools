@@ -73,6 +73,7 @@
 - [x] C1 建 `ip_models/` 共享替身库（2026-07-08）
   - ✅ `ip_models/bram/` — SDP/ROM/SP_RAM + LATENCY + 字节写使能 + 5/5
   - ✅ `ip_models/fifo/` — common/independent clk + 对称/非对称 + 满空/折回/溢出 + 5/5
+  - ✅ `ip_models/multiplier/` — signed/unsigned + latency 管线 + 5/5
 - [ ] C2 每个替身配契约测试（证明与 Xilinx IP 规格一致）
 - [ ] C3 IP 扫描器：解析 `.xci/.xpr`，列出 IP / 版本 / 参数
 - [ ] C4 `project.json` 增加 `ip` 段（仿真→model，构建→真 .xci）

@@ -1,0 +1,8 @@
+{
+    "sources": ["ip_mult.sv"],
+    "toplevel": "ip_mult",
+    "test_module": "tb.test_mult",
+    "sim": "verilator",
+    "parameters": {"A_WIDTH": 12, "B_WIDTH": 12, "OUT_WIDTH": 24,
+                   "IS_SIGNED": 1, "LATENCY": 1}
+}
