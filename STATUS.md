@@ -92,8 +92,9 @@
 
 **🎉 阶段 C（IP 双轨战略）全部完成（C1–C6）。** 进入**阶段 D：上板轨道**。
 
-- ✅ D2 完成：`vivado_backend/xdc_tools.py`——自动生成 XDC（时钟/引脚/伪路径）；`fpga_tools.py vivado-xdc` CLI；project.json `vivado.clocks`/`pins` 段。adder + 10ns 时钟综合：WNS=4.5ns,TNS=0.0。
-下一步：D3 解析时序报告(WNS/TNS)，形成"时序不收敛→自动迭代"闭环。
+- ✅ D3 完成：`_parse_timing` 增强——抽取 failure 路径/源/目的 + 失败端点计数；`timing_loop` 迭代闭环——WNS<0 自动放宽时钟周期 → 重综合 → 收敛。验证 cascade（2ns→4ns→8ns，WNS: -2.34→-0.19→+3.59ns，3 迭代自动收敛）。
+
+**🎉 阶段 D 上板轨道主体完成（D1–D3）。** 下一步：D4 知识库（时序收敛/约束/资源占用）。
 
 ---
 

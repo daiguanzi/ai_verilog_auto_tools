@@ -197,33 +197,128 @@ def _parse_utilization(rpt_path: str) -> dict:
 
 
 def _parse_timing(rpt_path: str) -> dict:
-    """Extract WNS, TNS from Vivado timing summary report."""
+    """Extract WNS, TNS, failing endpoints, and worst path details."""
     if not os.path.isfile(rpt_path):
         return {}
     text = Path(rpt_path).read_text(encoding="utf-8", errors="replace")
 
-    # Vivado 2018.2 format: table rows with WNS(ns) / TNS(ns) headers
-    # After the header, the first data row has the numeric values.
     wns, tns = None, None
-    capture = False
-    for line in text.splitlines():
-        if "WNS(ns)" in line and "TNS(ns)" in line:
-            capture = True
-            continue
-        if capture:
-            parts = line.split()
-            if len(parts) >= 2 and parts[0] != "WNS(ns)" and parts[0] != "":
-                for i, p in enumerate(parts):
-                    try:
-                        val = float(p)
-                        if wns is None:
-                            wns = val
-                        elif tns is None:
-                            tns = val
-                            break
-                    except ValueError:
-                        continue
-                if wns is not None and tns is not None:
-                    break
+    setup_failing = 0
+    hold_failing = 0
 
-    return {"wns_ns": wns, "tns_ns": tns}
+    # Summary line: "Setup : 349 Failing Endpoints,  Worst Slack -3.341ns, Total Violation -763.877ns"
+    m = re.search(r"Setup\s*:\s*(\d+)\s*Failing\s+Endpoints.*?\bWorst\s+Slack\s+([\-\d.]+)ns.*?Total\s+Violation\s+([\-\d.]+)ns", text)
+    if m:
+        setup_failing = int(m.group(1))
+        wns = float(m.group(2))
+        tns = float(m.group(3))
+
+    mh = re.search(r"Hold\s*:\s*(\d+)\s*Failing\s+Endpoints", text)
+    if mh:
+        hold_failing = int(mh.group(1))
+
+    # Worst path details
+    paths = []
+    for p in re.finditer(
+        r"Slack\s*\((VIOLATED|MET)\)\s*:\s*([\-\d.]+)ns.*?"
+        r"Source:\s*(.+?)\n.*?"
+        r"Destination:\s*(.+?)\n",
+        text, re.DOTALL,
+    ):
+        status = p.group(1)
+        slack = float(p.group(2))
+        src = p.group(3).strip()
+        dst = p.group(4).strip()
+        paths.append({
+            "status": status,
+            "slack_ns": slack,
+            "source": src,
+            "destination": dst,
+        })
+        if len(paths) >= 5:  # limit to first 5 paths
+            break
+
+    return {
+        "wns_ns": wns, "tns_ns": tns,
+        "setup_failing": setup_failing,
+        "hold_failing": hold_failing,
+        "paths": paths,
+    }
+
+
+def timing_loop(
+    project_dir: str,
+    *,
+    part: str,
+    sources: list[str],
+    top: str,
+    xdc_tpl: str,
+    xdc_path: str,
+    initial_period_ns: float,
+    max_iters: int = 5,
+    timeout: int = 600,
+) -> dict:
+    """Iterative timing-closure loop.
+
+    Starts with *initial_period_ns* clock. If WNS < 0, doubles the
+    clock period and re-runs synthesis. Stops when WNS >= 0 or max
+    iterations reached.
+
+    *xdc_tpl* — XDC template string with {period} placeholder.
+    *xdc_path* — path where updated XDC is written each iteration.
+
+    Returns {pass, final_wns, final_tns, iters, history}.
+    """
+    history = []
+    period = initial_period_ns
+
+    for i in range(max_iters):
+        # Generate XDC with current period
+        content = xdc_tpl.format(period=period)
+        Path(xdc_path).write_text(content, encoding="ascii")
+
+        result = vivado_synth(
+            project_dir=project_dir,
+            part=part,
+            sources=sources + [xdc_path] if xdc_path not in sources else sources,
+            top=top,
+            timeout=timeout,
+        )
+        timing = result.get("reports", {}).get("timing", {})
+        wns = timing.get("wns_ns")
+        tns = timing.get("tns_ns")
+        util = result.get("reports", {}).get("utilization", {})
+
+        entry = {
+            "iter": i + 1,
+            "period_ns": period,
+            "wns_ns": wns,
+            "tns_ns": tns,
+            "pass": result["pass"] and (wns is not None and wns >= 0),
+        }
+        history.append(entry)
+
+        if wns is not None and wns >= 0:
+            return {
+                "pass": True,
+                "final_wns": wns,
+                "final_tns": tns,
+                "final_period_ns": period,
+                "iters": i + 1,
+                "utilization": util,
+                "history": history,
+            }
+
+        # Double the period for next iteration (relax timing)
+        period *= 2.0
+
+    return {
+        "pass": False,
+        "final_wns": wns,
+        "final_tns": tns,
+        "final_period_ns": period,
+        "iters": max_iters,
+        "utilization": util,
+        "history": history,
+        "error": f"Could not close timing after {max_iters} iterations (max period={period}ns)",
+    }
