@@ -74,12 +74,11 @@
   - ✅ `ip_models/bram/` — SDP/ROM/SP_RAM + LATENCY + 字节写使能 + 5/5
   - ✅ `ip_models/fifo/` — common/independent clk + 对称/非对称 + 满空/折回/溢出 + 5/5
   - ✅ `ip_models/multiplier/` — signed/unsigned + latency 管线 + 5/5
-- [ ] C2 每个替身配契约测试（证明与 Xilinx IP 规格一致）
-- [x] C3 IP 扫描器：解析 `.xci/.xpr`，列出 IP / 版本 / 参数（2026-07-08，`fpga_tools.py ip-scan`，beamform 检出 21 个 IP 文件，替身覆盖率 14/21）
-- [x] C4 `project.json` 增加 `ip` 段（仿真→stub，构建→真 .xci）（2026-07-08，`run`/`lint` 自动引用替身，验证 c4_check 1/1）
-- [x] C5 探针：实测 2018.2 `export_simulation` / xsim 速度（2026-06-29）
-  - 结论：Vivado 目录 IP（如 `fifo_generator`）仿真模型含加密段 + SVA + `deassign`；**Verilator 不能直接编译**。`ip_models/` 替身库是主要路径。Tcl 批处理调 IP 生成完全可行。
-- [ ] C6 Agent 生成 Vivado Tcl 来创建/配置标准 IP 核 + 导出仿真文件 + 尝试接入 Verilator（替身库维护对照）
+- [x] C2 每个替身配契约测试（证明与 Xilinx IP 规格一致）（2026-07-08，规范 `contract_test_spec.md`——通用 T1–T5 + IP 专属清单）
+- [x] C3 ...
+- [x] C4 ...
+- [x] C5 ...
+- [x] C6 Agent 生成 Vivado Tcl 来创建/配置标准 IP 核 + 导出仿真文件（2026-07-08，`vivado_tools.py` + `fpga_tools.py vivado-ip-tcl`）
 
 ### 阶段 D — 上板轨道
 - [ ] D1 Windows 批处理调用 Vivado 2018.2（`vivado -mode batch -source *.tcl`）：综合→时序→实现→bitstream

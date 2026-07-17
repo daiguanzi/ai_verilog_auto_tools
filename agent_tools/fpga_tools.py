@@ -657,12 +657,13 @@ if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser(description="FPGA Project Tools")
-    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "ip-scan"])
+    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "ip-scan", "vivado-ip-tcl"])
     p.add_argument("project_dir", help="Path to project directory")
     p.add_argument("--json", action="store_true", help="Output JSON")
     p.add_argument("--sim", default="verilator", help="Simulator for run command")
     p.add_argument("--waves", action="store_true", help="Enable waveform dump for run command")
     p.add_argument("--no-lint", action="store_true", help="Skip the pre-sim lint gate (run command)")
+    p.add_argument("--device", default="xc7a200t-fbg484-2L", help="FPGA device for vivado-ip-tcl")
 
     args = p.parse_args()
 
@@ -742,3 +743,24 @@ if __name__ == "__main__":
 
     elif args.command == "ip-scan":
         print(print_ip_scan(args.project_dir))
+
+    elif args.command == "vivado-ip-tcl":
+        from agent_tools.vivado_tools import write_ip_tcl
+        cfg = load_project_config(args.project_dir)
+        if cfg is None:
+            print(f"ERROR: No valid project.json in {args.project_dir}")
+            sys.exit(1)
+        ip_cfg = cfg.get("ip", {})
+        specs = []
+        for instance, entry in ip_cfg.items():
+            ip_type = entry.get("type", "")
+            params  = entry.get("params", {})
+            if ip_type:
+                specs.append({"type": ip_type, "instance": instance, "params": params})
+        if not specs:
+            print("ERROR: No 'ip' entries found in project.json")
+            sys.exit(1)
+        out = os.path.join(args.project_dir, "_gen_ips.tcl")
+        write_ip_tcl(out, args.device, specs)
+        print(f"Tcl script written: {out}")
+        print("Run:  vivado -mode batch -source _gen_ips.tcl")

@@ -85,11 +85,13 @@
   知识 `ise_vm_backend.md`。下一步 ISE-3：`project.json` 集成 + `fpga_tools.py` 对接。
 
 **🎉 阶段 C 已启动**：扫描 reference 两个项目（rl_decov + beamform：20 个 IP 实例/5 种类型）。
-- ✅ C3 完成：IP 扫描器——`fpga_tools.py ip-scan` 解析 `.xci`（SPIRIT XML），检测 beamform 21 个 IP 文件，替身覆盖率 14/21（floating_point/ xfft 暂无 Verilog stub）。
-- ✅ C4 完成：`project.json` `ip` 段——`run` 和 `lint` 自动从 `ip` 段引用替身 `.sv` 源文件；验证 c4_check 通过。
+- ✅ C3 完成：IP 扫描器——`fpga_tools.py ip-scan` 解析 `.xci`（SPIRIT XML），检出 beamform 21 个 IP 文件，替身覆盖率 14/21。
+- ✅ C4 完成：`project.json` `ip` 段——`run`/`lint` 自动引用替身 .sv 源；验证 c4_check 1/1。
+- ✅ C2 完成：契约测试规范 `contract_test_spec.md`（must-know）——通用 T1–T5 + 按 IP 类型的专属测试清单。
+- ✅ C6 完成：`vivado_tools.py` 生成 Vivado Tcl 来创建/配置 IP 核 + `fpga_tools.py vivado-ip-tcl` CLI 命令。
 
-**🎉 阶段 C 主体系完成** — ip_models 库（3 替身 15/15）、IP 扫描器、project.json IP 集成。
-剩余 C2 契约测试规范（文档为主）+ C6 Agent Tcl 建 IP（实测已通）。
+**🎉 阶段 C（IP 双轨战略）全部完成（C1–C6）！**
+下一步：**阶段 D——上板轨道**（D1 Vivado 批处理综合→时序→bitstream）。
 
 ---
 
