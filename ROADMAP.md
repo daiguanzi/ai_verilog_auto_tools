@@ -82,7 +82,7 @@
 
 ### 阶段 D — 上板轨道
 - [x] D1 Windows 批处理调用 Vivado 2018.2（`vivado -mode batch -source *.tcl`）：综合→时序→实现→bitstream（2026-07-17，`vivado_backend/synth_runner.py` + `fpga_tools.py vivado-synth` + 项目 `vivado` 段；adder 综合验证通过，切片 LUT=9、寄存器=9、BRAM=0、DSP=0）
-- [ ] D2 自动生成/管理 XDC 约束（时钟、引脚、伪路径）
+- [x] D2 自动生成/管理 XDC 约束（时钟、引脚、伪路径）（2026-07-17，`vivado_backend/xdc_tools.py` + `fpga_tools.py vivado-xdc` + project.json `vivado.clocks`/`pins`；adder+10ns时钟综合：WNS=4.5ns,TNS=0.0）
 - [ ] D3 解析时序报告(WNS/TNS)，形成"时序不收敛→自动迭代"闭环
 - [ ] D4 知识库新增：时序收敛、约束、资源占用
 

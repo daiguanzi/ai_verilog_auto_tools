@@ -92,9 +92,8 @@
 
 **🎉 阶段 C（IP 双轨战略）全部完成（C1–C6）。** 进入**阶段 D：上板轨道**。
 
-- ✅ D1 完成：`vivado_backend/synth_runner.py`——Tcl 生成 + Vivado 批处理综合→实现→bitstream + 资源/时序报告解析。
-  `fpga_tools.py vivado-synth` CLI + `project.json` `vivado` 段。adder 验证综合通过（LUT=9/Reg=9/BRAM=0/DSP=0，rc=0）。
-下一步：D2 自动生成/管理 XDC 约束（时钟、引脚、伪路径）。
+- ✅ D2 完成：`vivado_backend/xdc_tools.py`——自动生成 XDC（时钟/引脚/伪路径）；`fpga_tools.py vivado-xdc` CLI；project.json `vivado.clocks`/`pins` 段。adder + 10ns 时钟综合：WNS=4.5ns,TNS=0.0。
+下一步：D3 解析时序报告(WNS/TNS)，形成"时序不收敛→自动迭代"闭环。
 
 ---
 

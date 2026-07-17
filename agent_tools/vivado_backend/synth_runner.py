@@ -46,8 +46,7 @@ def generate_synth_tcl(
     ]
 
     for src in sources:
-        src_abs = os.path.abspath(src).replace("\\", "/")
-        lines.append(f"add_files -norecurse {{{src_abs}}}")
+        lines.append(f"add_files -norecurse {{{os.path.abspath(src).replace(chr(92), '/')}}}")
 
     lines += [
         f"set_property top {top} [current_fileset]",
@@ -59,8 +58,7 @@ def generate_synth_tcl(
     if xdc_files:
         lines.append("# Add constraint files")
         for xdc in xdc_files:
-            xdc_abs = os.path.abspath(xdc).replace("\\", "/")
-            lines.append(f"add_files -fileset constrs_1 -norecurse {{{xdc_abs}}}")
+            lines.append(f"add_files -fileset constrs_1 -norecurse {{{os.path.abspath(xdc).replace(chr(92), '/')}}}")
         lines.append("")
 
     lines += [
@@ -148,9 +146,9 @@ def vivado_synth(
     tcl_content = generate_synth_tcl(
         project_name=project_name,
         part=part,
-        sources=sources,
+        sources=[os.path.abspath(s) for s in sources],
         top=top,
-        xdc_files=xdc_files,
+        xdc_files=[os.path.abspath(x) for x in (xdc_files or [])],
         output_dir=os.path.abspath(out_dir),
     )
     tcl_path = os.path.join(project_dir, "_synth.tcl")

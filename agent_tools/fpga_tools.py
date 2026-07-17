@@ -657,7 +657,7 @@ if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser(description="FPGA Project Tools")
-    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "ip-scan", "vivado-ip-tcl", "vivado-synth"])
+    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "ip-scan", "vivado-ip-tcl", "vivado-synth", "vivado-xdc"])
     p.add_argument("project_dir", help="Path to project directory")
     p.add_argument("--json", action="store_true", help="Output JSON")
     p.add_argument("--sim", default="verilator", help="Simulator for run command")
@@ -745,7 +745,10 @@ if __name__ == "__main__":
         print(print_ip_scan(args.project_dir))
 
     elif args.command == "vivado-ip-tcl":
-        from agent_tools.vivado_tools import write_ip_tcl
+        try:
+            from agent_tools.vivado_tools import write_ip_tcl
+        except ImportError:
+            from vivado_tools import write_ip_tcl
         cfg = load_project_config(args.project_dir)
         if cfg is None:
             print(f"ERROR: No valid project.json in {args.project_dir}")
@@ -766,7 +769,10 @@ if __name__ == "__main__":
         print("Run:  vivado -mode batch -source _gen_ips.tcl")
 
     elif args.command == "vivado-synth":
-        from agent_tools.vivado_backend.synth_runner import vivado_synth
+        try:
+            from agent_tools.vivado_backend.synth_runner import vivado_synth
+        except ImportError:
+            from vivado_backend.synth_runner import vivado_synth
         cfg = load_project_config(args.project_dir)
         if cfg is None:
             print(f"ERROR: No valid project.json in {args.project_dir}")
@@ -813,3 +819,27 @@ if __name__ == "__main__":
                 print(f"  Timing: {timing}")
             print(f"{'='*60}\n")
         sys.exit(0 if result["pass"] else 1)
+
+    elif args.command == "vivado-xdc":
+        try:
+            from agent_tools.vivado_backend.xdc_tools import write_xdc
+        except ImportError:
+            from vivado_backend.xdc_tools import write_xdc
+        cfg = load_project_config(args.project_dir)
+        if cfg is None:
+            print(f"ERROR: No valid project.json in {args.project_dir}")
+            sys.exit(1)
+        vcfg = cfg.get("vivado", {})
+        clocks = vcfg.get("clocks", [])
+        pins   = vcfg.get("pins", [])
+        false_paths = vcfg.get("false_paths", [])
+        if not clocks and not pins:
+            print("WARNING: No clocks or pins in project.json vivado section")
+        out = os.path.join(args.project_dir, "constraints.xdc")
+        write_xdc(out, clocks=clocks, pins=pins, false_paths=false_paths,
+                  comment=f"Constraints for {cfg['toplevel']}")
+        print(f"XDC written: {out}")
+        if clocks:
+            print(f"  Clocks: {len(clocks)}")
+        if pins:
+            print(f"  Pins: {len(pins)}")

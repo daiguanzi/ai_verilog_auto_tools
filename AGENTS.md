@@ -199,6 +199,12 @@ async def drive_pulse(dut, signal, value):
 3. `knowledge/patterns/delayed_input_signal.md` — GPI 写延迟 + 采样点
 4. `knowledge/simulator/wsl_verilator_ops.md` — Verilator 语法/参数限制
 
+### Before developing Vivado/ISE batch tooling
+**Mandatory pre-read**:
+1. `knowledge/simulator/vivado_batch_runner.md` — Vivado 批处理：路径/行尾/报告格式
+2. `knowledge/simulator/ise_vm_backend.md` — ISE VM 模式参考（同类"生成脚本→调工具"）
+3. `knowledge/simulator/wsl_verilator_ops.md` — 跨平台坑（路径/行尾）
+
 ### After completing any debugging session
 - If a problem took more than 3 iterations to fix, **write a knowledge entry**
   or update an existing one. This is not optional — otherwise every future
