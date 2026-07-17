@@ -29,4 +29,4 @@
 | [axi_bus_verification.md](patterns/axi_bus_verification.md) | AXI-Lite/Stream 总线验证模式（cocotb + Verilator） | high | 2026-06-29 |
 | [cdc_guidelines.md](patterns/cdc_guidelines.md) | CDC（跨时钟域）要点——仿真看不出来的最危险问题 | **must-know** | 2026-06-29 |
 | [reset_strategy.md](patterns/reset_strategy.md) | 复位同步与复位策略——为什么异步复位不可靠 | high | 2026-06-29 |
-| [contract_test_spec.md](patterns/contract_test_spec.md) | 替身模型契约测试规范——ip_models 验收标准 | **must-know** | 2026-07-08 |
+| [timing_closure.md](patterns/timing_closure.md) | 时序收敛与资源优化——从 Vivado 报告到可上板的 RTL | **must-know** | 2026-07-17 |
