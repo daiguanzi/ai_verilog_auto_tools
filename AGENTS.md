@@ -15,6 +15,7 @@
 │   ├── sim_driver.py      ← Simulation engine (cocotb runner wrapper)
 │   ├── fpga_tools.py      ← Project scanner + CLI (scan/summary/run)
 │   ├── vivado_tools.py     ← Vivado Tcl IP generator
+│   ├── vivado_backend/      ← Vivado batch synthesis runner (synth_runner.py)
 │   ├── project_gen.py     ← Project skeleton generator
 │   ├── reference_reader.py ← Reads files from reference/
 │   └── ise_backend/       ← ISE 14.7 VM backend (ise_remote.py + config)

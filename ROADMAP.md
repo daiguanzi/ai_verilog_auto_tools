@@ -81,7 +81,7 @@
 - [x] C6 Agent 生成 Vivado Tcl 来创建/配置标准 IP 核 + 导出仿真文件（2026-07-08，`vivado_tools.py` + `fpga_tools.py vivado-ip-tcl`）
 
 ### 阶段 D — 上板轨道
-- [ ] D1 Windows 批处理调用 Vivado 2018.2（`vivado -mode batch -source *.tcl`）：综合→时序→实现→bitstream
+- [x] D1 Windows 批处理调用 Vivado 2018.2（`vivado -mode batch -source *.tcl`）：综合→时序→实现→bitstream（2026-07-17，`vivado_backend/synth_runner.py` + `fpga_tools.py vivado-synth` + 项目 `vivado` 段；adder 综合验证通过，切片 LUT=9、寄存器=9、BRAM=0、DSP=0）
 - [ ] D2 自动生成/管理 XDC 约束（时钟、引脚、伪路径）
 - [ ] D3 解析时序报告(WNS/TNS)，形成"时序不收敛→自动迭代"闭环
 - [ ] D4 知识库新增：时序收敛、约束、资源占用
@@ -98,6 +98,10 @@
 ### 阶段 E — 端到端整合
 - [ ] E1 一条命令：需求→仿真过→lint 过→时序过→bitstream
 - [ ] E2 每个真实项目跑完强制复盘进 knowledge/
+
+### 🧪 阶段 D/E 完成后的全流程验证项目
+- [ ] **8 点 DFT**（信号处理类）——测全流程：多模块层次 + BRAM/Mult 替身 + Python 参考模型 + scoreboard + Vivado 综合 → 资源/时序报告
+  测试目标：验证 agent 从需求 → RTL → 仿真 → lint → IP 替身 → Vivado 综合 → 时序报告 的完整闭环。
 
 ---
 

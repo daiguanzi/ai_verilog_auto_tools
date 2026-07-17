@@ -90,8 +90,11 @@
 - ✅ C2 完成：契约测试规范 `contract_test_spec.md`（must-know）——通用 T1–T5 + 按 IP 类型的专属测试清单。
 - ✅ C6 完成：`vivado_tools.py` 生成 Vivado Tcl 来创建/配置 IP 核 + `fpga_tools.py vivado-ip-tcl` CLI 命令。
 
-**🎉 阶段 C（IP 双轨战略）全部完成（C1–C6）！**
-下一步：**阶段 D——上板轨道**（D1 Vivado 批处理综合→时序→bitstream）。
+**🎉 阶段 C（IP 双轨战略）全部完成（C1–C6）。** 进入**阶段 D：上板轨道**。
+
+- ✅ D1 完成：`vivado_backend/synth_runner.py`——Tcl 生成 + Vivado 批处理综合→实现→bitstream + 资源/时序报告解析。
+  `fpga_tools.py vivado-synth` CLI + `project.json` `vivado` 段。adder 验证综合通过（LUT=9/Reg=9/BRAM=0/DSP=0，rc=0）。
+下一步：D2 自动生成/管理 XDC 约束（时钟、引脚、伪路径）。
 
 ---
 

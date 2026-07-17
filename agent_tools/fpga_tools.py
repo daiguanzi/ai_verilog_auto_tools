@@ -657,7 +657,7 @@ if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser(description="FPGA Project Tools")
-    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "ip-scan", "vivado-ip-tcl"])
+    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "ip-scan", "vivado-ip-tcl", "vivado-synth"])
     p.add_argument("project_dir", help="Path to project directory")
     p.add_argument("--json", action="store_true", help="Output JSON")
     p.add_argument("--sim", default="verilator", help="Simulator for run command")
@@ -764,3 +764,52 @@ if __name__ == "__main__":
         write_ip_tcl(out, args.device, specs)
         print(f"Tcl script written: {out}")
         print("Run:  vivado -mode batch -source _gen_ips.tcl")
+
+    elif args.command == "vivado-synth":
+        from agent_tools.vivado_backend.synth_runner import vivado_synth
+        cfg = load_project_config(args.project_dir)
+        if cfg is None:
+            print(f"ERROR: No valid project.json in {args.project_dir}")
+            sys.exit(1)
+        proj = cfg["__project_dir"]
+        vivado_cfg = cfg.get("vivado", {})
+        part = vivado_cfg.get("part", args.device)
+        top = cfg["toplevel"]
+        sources_full = [str(Path(proj) / s) for s in cfg["sources"]]
+        # include IP stubs
+        ip_cfg = cfg.get("ip", {})
+        workspace_root = Path(__file__).resolve().parent.parent
+        for ip_name, ip_entry in ip_cfg.items():
+            stub = ip_entry.get("stub", "")
+            if stub:
+                stub_abs = str(workspace_root / stub) if not os.path.isabs(stub) else stub
+                if os.path.exists(stub_abs) and stub_abs not in sources_full:
+                    sources_full.append(stub_abs)
+        xdc = vivado_cfg.get("xdc", [])
+        xdc_full = [str(Path(proj) / x) for x in xdc]
+        print(f"Synthesising {top} for {part} ({len(sources_full)} sources)...")
+        result = vivado_synth(
+            project_dir=os.path.join(proj, "vivado_synth"),
+            part=part,
+            sources=sources_full,
+            top=top,
+            xdc_files=xdc_full,
+            project_name=top,
+        )
+        if args.json:
+            rpt = {k: v for k, v in result.items() if k != "log"}
+            print(json.dumps(rpt, indent=2, ensure_ascii=False))
+        else:
+            status = "PASS" if result["pass"] else "FAIL"
+            print(f"\n{'='*60}")
+            print(f"  VIVADO SYNTHESIS: {status}")
+            if result.get("error"):
+                print(f"  Error: {result['error']}")
+            util = result.get("reports", {}).get("utilization", {})
+            if util:
+                print(f"  Utilisation: {util}")
+            timing = result.get("reports", {}).get("timing", {})
+            if timing:
+                print(f"  Timing: {timing}")
+            print(f"{'='*60}\n")
+        sys.exit(0 if result["pass"] else 1)
