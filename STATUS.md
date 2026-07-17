@@ -59,18 +59,9 @@
 
 ## 3. 正在做什么
 
-**阶段 0（单模块仿真闭环）已完成** ✅。4 个基础场景全部通过仿真：
+**阶段 C：IP 双轨战略**。
 
-| 场景 | 测试 | 迭代 |
-|------|------|------|
-| 按键消抖 | 5/5 | 2 |
-| UART TX | 4/4 | 1 |
-| SPI Master | 4/4 | 1 |
-| FIFO | 5/5 | 2 |
-| **合计** | **18/18** | **累计 6 次** |
-
-**当前位置：阶段 A —— 加固地基**（见 `ROADMAP.md`）。
-- ✅ A1 完成：`fpga_tools.py` 改用 `verilator --xml-only` 解析（带正则回退），可靠提取端口位宽/参数默认值/自动找 top。
+- ✅ A1–A4 完成（阶段 A 加固地基）
 - ✅ A2 完成：`project.json` 支持 `includes`/`defines`/`parameters`/`timescale`/多文件，验证项目 `outputs/a2_check` 2/2 PASS，旧项目无回归。
 - ✅ 整理 outputs→examples：提拔 `06_spi_master`(4/4)、`07_counter`(6/6)、`08_config_demo`(2/2)；清空 outputs 草稿区；提拔机制写入 `AGENTS.md §8`。examples 现共 8 个（01–08）。
 - ✅ A3 完成：lint 门禁（`verilator --lint-only -Wall -Wno-fatal`）。错误阻断仿真、警告仅提示；`run` 默认先 lint，可 `--no-lint` 跳过；新增独立 `lint` 命令。验证：干净示例过、位宽截断报警告、未定义信号被拦下。
@@ -94,16 +85,18 @@
   知识 `ise_vm_backend.md`。下一步 ISE-3：`project.json` 集成 + `fpga_tools.py` 对接。
 
 **🎉 阶段 C 已启动**：扫描 reference 两个项目（rl_decov + beamform：20 个 IP 实例/5 种类型）。
-- ✅ C1 交付两个替身：`ip_models/bram/`（5/5）+ `ip_models/fifo/`（5/5）。
-  覆盖用户项目的 9 个 BRAM + 3 个 FIFO 实例。教训更新 `ip_stub_development.md` 第 6 坑。
-下一步：C2 契约测试规范标准化，或 C3 IP 扫描器代码化。
+- ✅ C3 完成：IP 扫描器——`fpga_tools.py ip-scan` 解析 `.xci`（SPIRIT XML），检测 beamform 21 个 IP 文件，替身覆盖率 14/21（floating_point/ xfft 暂无 Verilog stub）。
+- ✅ C4 完成：`project.json` `ip` 段——`run` 和 `lint` 自动从 `ip` 段引用替身 `.sv` 源文件；验证 c4_check 通过。
+
+**🎉 阶段 C 主体系完成** — ip_models 库（3 替身 15/15）、IP 扫描器、project.json IP 集成。
+剩余 C2 契约测试规范（文档为主）+ C6 Agent Tcl 建 IP（实测已通）。
 
 ---
 
 ## 4. 下一步（按顺序执行）
 
 完整长期路线图见 **`ROADMAP.md`**（阶段 A–E + 架构决策 D1–D5 + 数据探针）。
-当前进行到 **阶段 A**，按 ROADMAP 中 A1→A4 顺序执行。每完成一项更新此处与 ROADMAP 勾选框。
+当前进行到 **阶段 C**，按 ROADMAP 中 C1→C6 顺序执行。每完成一项更新此处与 ROADMAP 勾选框。
 
 ---
 

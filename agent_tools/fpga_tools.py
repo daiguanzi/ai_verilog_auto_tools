@@ -53,6 +53,17 @@ def run_project(project_dir: str, *, sim: str | None = None, waves: bool = False
     sources = [str(Path(proj) / s) for s in cfg["sources"]]
     includes = [str(Path(proj) / i) for i in cfg.get("includes", [])]
 
+    # ---- IP stub auto-inclusion (C4) ----
+    # stub paths are relative to workspace root (where ip_models/ lives)
+    workspace_root = Path(__file__).resolve().parent.parent
+    ip_cfg = cfg.get("ip", {})
+    for ip_name, ip_entry in ip_cfg.items():
+        stub = ip_entry.get("stub", "")
+        if stub:
+            stub_abs = str(workspace_root / stub) if not os.path.isabs(stub) else stub
+            if os.path.exists(stub_abs) and stub_abs not in sources:
+                sources.append(stub_abs)
+
     lint_res = None
     if lint and _run_lint is not None:
         lint_res = _run_lint(
@@ -104,6 +115,17 @@ def lint_project(project_dir: str) -> dict:
     proj = cfg["__project_dir"]
     sources = [str(Path(proj) / s) for s in cfg["sources"]]
     includes = [str(Path(proj) / i) for i in cfg.get("includes", [])]
+
+    # IP stub auto-inclusion (same as run_project)
+    workspace_root = Path(__file__).resolve().parent.parent
+    ip_cfg = cfg.get("ip", {})
+    for ip_name, ip_entry in ip_cfg.items():
+        stub = ip_entry.get("stub", "")
+        if stub:
+            stub_abs = str(workspace_root / stub) if not os.path.isabs(stub) else stub
+            if os.path.exists(stub_abs) and stub_abs not in sources:
+                sources.append(stub_abs)
+
     return _run_lint(
         sources=sources,
         hdl_toplevel=cfg["toplevel"],
@@ -111,6 +133,125 @@ def lint_project(project_dir: str) -> dict:
         defines=cfg.get("defines", {}),
         timescale=cfg.get("timescale"),
     )
+
+
+# ============================================================
+#  IP Scanner — Vivado .xci parser + stub matching
+# ============================================================
+
+XCI_NS = "http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009"
+
+IP_TO_STUB = {
+    "blk_mem_gen":     "ip_models/bram/ip_bram.sv",
+    "fifo_generator":  "ip_models/fifo/ip_fifo.sv",
+    "mult_gen":        "ip_models/multiplier/ip_mult.sv",
+    "floating_point":  None,  # no Verilator stub yet — use Python ref model
+    "xfft":            None,  # no Verilator stub — too complex
+}
+
+
+def scan_ips(project_dir: str) -> dict:
+    """Recursively find and parse Vivado .xci IP core files.
+
+    Returns {project_dir, ip_count, ips: [{instance, ip_name, version, params, ...}]}.
+    """
+    project_path = Path(project_dir).resolve()
+    xci_files = sorted(project_path.rglob("*.xci"))
+    ips = []
+    for xci in xci_files:
+        info = _parse_xci(xci)
+        if info:
+            info["path"] = str(xci)
+            ips.append(info)
+    return {"project_dir": str(project_path), "ip_count": len(ips), "ips": ips}
+
+
+def _parse_xci(xci_path: Path) -> Optional[dict]:
+    try:
+        tree = ET.parse(str(xci_path))
+        root = tree.getroot()
+    except Exception:
+        return None
+
+    ci = root.find(f"{{{XCI_NS}}}componentInstances/{{{XCI_NS}}}componentInstance")
+    if ci is None:
+        return None
+
+    inst_name = ci.findtext(f"{{{XCI_NS}}}instanceName", "")
+
+    cr = ci.find(f"{{{XCI_NS}}}componentRef")
+    if cr is None:
+        return None
+
+    def attr(name):
+        return cr.get(name, cr.get(f"{{{XCI_NS}}}{name}", ""))
+
+    vendor  = attr("vendor")
+    library = attr("library")
+    ip_name = attr("name")
+    version = attr("version")
+
+    params = {}
+    for cev in ci.findall(f"{{{XCI_NS}}}configurableElementValues/{{{XCI_NS}}}configurableElementValue"):
+        ref_id = cev.get("referenceId", "")
+        val = (cev.text or "").strip()
+        if ref_id.startswith("MODELPARAM_VALUE."):
+            params[ref_id.replace("MODELPARAM_VALUE.", "")] = val
+
+    return {
+        "instance": inst_name,
+        "vendor":   vendor,
+        "library":  library,
+        "ip_name":  ip_name,
+        "version":  version,
+        "params":   params,
+    }
+
+
+def suggest_ip_stubs(ip_list: list[dict]) -> list[dict]:
+    """Given an IP inventory from scan_ips(), return a list with
+    a 'stub' path and 'covered' boolean added.
+    """
+    results = []
+    for ip in ip_list:
+        name = ip.get("ip_name", "")
+        stub = IP_TO_STUB.get(name)
+        results.append({
+            **ip,
+            "stub": stub,
+            "covered": stub is not None,
+        })
+    return results
+
+
+def print_ip_scan(project_dir: str) -> str:
+    """Human-readable IP inventory report."""
+    scan = scan_ips(project_dir)
+    suggested = suggest_ip_stubs(scan["ips"])
+
+    lines = []
+    lines.append("=" * 70)
+    lines.append("  IP CORE INVENTORY")
+    lines.append("=" * 70)
+    lines.append(f"  Directory: {scan['project_dir']}")
+    lines.append(f"  IP cores found: {scan['ip_count']}")
+    lines.append("")
+
+    covered = sum(1 for s in suggested if s["covered"])
+    lines.append(f"  Stubs available: {covered}/{scan['ip_count']}")
+    lines.append("")
+
+    for s in suggested:
+        status = "✓" if s["covered"] else "✗ NONE"
+        lines.append(f"  [{s['instance']}]  {s['vendor']}:{s['ip_name']} v{s['version']}")
+        lines.append(f"           stub: {status}  ({s.get('stub','none')})")
+        if s["params"]:
+            keys = list(s["params"].keys())[:4]
+            for k in keys:
+                lines.append(f"           {k} = {s['params'][k]}")
+        lines.append("")
+    lines.append("=" * 70)
+    return "\n".join(lines)
 
 
 def scan_project(project_dir: str) -> dict:
@@ -516,7 +657,7 @@ if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser(description="FPGA Project Tools")
-    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint"])
+    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "ip-scan"])
     p.add_argument("project_dir", help="Path to project directory")
     p.add_argument("--json", action="store_true", help="Output JSON")
     p.add_argument("--sim", default="verilator", help="Simulator for run command")
@@ -598,3 +739,6 @@ if __name__ == "__main__":
                     print(f"  [WARN]  {w[:200]}")
                 print(f"{'='*60}\n")
         sys.exit(0 if res.get("pass", False) else 1)
+
+    elif args.command == "ip-scan":
+        print(print_ip_scan(args.project_dir))
