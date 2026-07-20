@@ -31,7 +31,10 @@ def run_modelsim(project_dir: str, *, top: str, sources: list[str],
 
     # Determine testbench — reuse xsim_runner's generator
     if tb_file is None and signals and test_vectors:
-        from agent_tools.vivado_backend.xsim_runner import generate_verilog_tb
+        try:
+            from agent_tools.vivado_backend.xsim_runner import generate_verilog_tb
+        except ImportError:
+            from vivado_backend.xsim_runner import generate_verilog_tb
         tb_content = generate_verilog_tb(top, signals, test_vectors)
         tb_file = os.path.join(project_dir, f"tb_{top}.v")
         Path(tb_file).write_text(tb_content, encoding="utf-8")

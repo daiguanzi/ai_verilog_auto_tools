@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2018.2.2 (win64) Build 2348494 Mon Oct  1 18:25:44 MDT 2018
-| Date         : Mon Jul 20 14:41:56 2026
+| Date         : Tue Jul 21 00:03:31 2026
 | Host         : han running 64-bit major release  (build 9200)
 | Command      : report_utilization -file {C:\Users\12430\Desktop\ai_verilog_auto_tools\outputs\dft8\vivado_synth\vivado_out/utilization.rpt}
 | Design       : dft8_top
