@@ -96,8 +96,26 @@
 - [ ] ISE-4 实际端到端验证：用 ISE VM 跑一个 Spartan-6 工程全流程（含 XST 综合 + 时序报告）
 
 ### 阶段 E — 端到端整合
-- [x] E1 一条命令：需求→仿真过→lint 过→Vivado综合（2026-07-20，`fpga_tools.py full-run`——lint→sim→vivado-synth 串行；WSL:lint+sim；Win:sim+vivado）
-- [x] E2 每个真实项目跑完强制复盘进 knowledge/（2026-07-20，`AGENTS.md §8` 已有 8 步复盘 + 知识库覆盖检查 + outputs→examples 提拔；本次会话即沿此流程更新了 `wsl_verilator_ops.md` §9/§10）
+- [x] E1 一条命令：需求→仿真过→lint 过→Vivado综合（2026-07-20）
+- [x] E2 复盘机制（2026-07-20）
+
+### 🔄 V2 执行流程（2026-07-20 制定）
+每个项目的 5 阶段自动化流水线：
+
+| 阶段 | 步骤 | 工具 |
+|------|------|------|
+| **P1 快速迭代** | 读需求→生成 RTL→Verilator+cocotb 仿真→修→重复 | Verilator |
+| **P2 Vivado 准备** | ① 时钟频率在一开始就问用户（读 XDC/默认 100MHz）② 自动生成 XDC ③ 自动生成 xsim TB ④ 修改已有工程先备份+问用户 | Vivado Tcl |
+| **P3 Vivado 仿真** | xvim/xelab/xsim 行为级仿真→解析 PASS/FAIL→修→重跑 | xsim |
+| **P4 综合+时序** | 综合→实现→timing_loop 收敛 | Vivado Tcl |
+| **P5 交付** | .xpr GUI 可直接打开 + 全流程报告 | — |
+
+关键规则：
+- IP 核：Verilator 用 ip_models 替身，Vivado 用真 .xci
+- 修改已有 .xpr：先 Tcl 备份→git 记录→问用户确认→再改
+- 时钟频率：材料中已有就用，没有则问用户，未回答则 100MHz
+- ISE：默认不启用，用户明确要求时才走 ISE VM 后端
+- ModelSim：xsim 为主，ModelSim 路径探测后加入可选后端
 
 ### 🧪 阶段 D/E 完成后的全流程验证项目
 - [ ] **8 点 DFT**（信号处理类）——测全流程：多模块层次 + BRAM/Mult 替身 + Python 参考模型 + scoreboard + Vivado 综合 → 资源/时序报告

@@ -94,12 +94,16 @@
 
 - ✅ D4 完成：知识 `timing_closure.md`（must-know）——WNS/TNS/失败端点解读 + 4 种修复策略 + 约束必须项 + 资源报告解读 + xc7a200t 经验数字。
 
-- ✅ E2 完成：复盘机制确认完备——`AGENTS.md §8` 覆盖全流程（复盘→知识库覆盖检查→examples 提拔）。
-  本次已按此机制更新 `wsl_verilator_ops.md`（§9 WSL→Vivado 桥接、§10 Vivado 输出编码）。
+**🎉 路线图主轨道完成。** 进入 **V2 执行流程**（5 阶段自动化流水线）：
 
-**🎉 阶段 A–E 全阶段完成！** 路线图主轨道已全部实现。剩余：
-- 🧪 8 点 DFT 全流程验证（烤整个 agent）
-- ISE-4 ISE VM 端到端验证
+已交付：
+- ✅ `vivado_backend/project_manager.py` — .xpr 管理（打开/备份/git/增删文件/保存/创建工程）
+- ✅ `vivado_backend/xsim_runner.py` — xsim 仿真（xvlog→xelab→xsim + 自动 .v TB 生成）
+- ✅ ModelSim 路径探测：`C:\modeltech64_10.4\win64\vsim.exe`
+- ✅ ROADMAP 新增 V2 流程文档（5 阶段 + 时钟前置规则 + xpr 修改规则）
+
+进行中：
+- 🔄 升级 `full-run` 串联 lint→Verilator→xsim→synth→timing
 
 ---
 
