@@ -55,3 +55,19 @@ related: [knowledge/simulator/verilator_cocotb.md]
        from xxx import something
    ```
    vivado_backend、ise_backend、sim_driver 都适用此规则。
+
+9. **WSL 调 Windows 可执行文件（Vivado）**：WSL Python 不能直接 `subprocess.run`
+   Windows 的 `.bat` 文件（`Exec format error`）。必须经过 `cmd.exe`：
+   ```python
+   cmd = ["cmd.exe", "/c", f"vivado.bat -mode batch -source script.tcl -nolog"]
+   ```
+   ⚠️ `cmd.exe /c` 后面的命令必须是**一个完整字符串**（不能用 subprocess
+   list 展开多个参数）。路径要从 `/mnt/c/...` 转成 `C:\...`。
+   `subprocess.run(cwd=...)` 用 WSL 路径（`/mnt/c/...`）。
+
+10. **Vivado 输出编码**：Vivado 2018.2 在中文 Windows 上输出可能含 GBK/CP936
+    字符。`subprocess.run(capture_output=True, text=True)` 会因非 UTF-8 字节而
+    报 `UnicodeDecodeError`。改为：
+    ```python
+    proc.stdout.decode("utf-8", errors="replace")
+    ```

@@ -97,7 +97,7 @@
 
 ### 阶段 E — 端到端整合
 - [x] E1 一条命令：需求→仿真过→lint 过→Vivado综合（2026-07-20，`fpga_tools.py full-run`——lint→sim→vivado-synth 串行；WSL:lint+sim；Win:sim+vivado）
-- [ ] E2 每个真实项目跑完强制复盘进 knowledge/
+- [x] E2 每个真实项目跑完强制复盘进 knowledge/（2026-07-20，`AGENTS.md §8` 已有 8 步复盘 + 知识库覆盖检查 + outputs→examples 提拔；本次会话即沿此流程更新了 `wsl_verilator_ops.md` §9/§10）
 
 ### 🧪 阶段 D/E 完成后的全流程验证项目
 - [ ] **8 点 DFT**（信号处理类）——测全流程：多模块层次 + BRAM/Mult 替身 + Python 参考模型 + scoreboard + Vivado 综合 → 资源/时序报告

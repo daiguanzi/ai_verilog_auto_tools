@@ -94,9 +94,12 @@
 
 - ✅ D4 完成：知识 `timing_closure.md`（must-know）——WNS/TNS/失败端点解读 + 4 种修复策略 + 约束必须项 + 资源报告解读 + xc7a200t 经验数字。
 
-- ✅ E1 完成：一键全流程 `full-run`（Windows: lint+sim+vivado；WSL: lint+sim）。
-- ✅ ISE-3 完成：`ise-synth`/`ise-sim` CLI 命令，从 `project.json` `ise` 段读配置调 VS 后端。
-下一步：E2 复盘机制收尾 + 🧪 DFT 全流程验证。
+- ✅ E2 完成：复盘机制确认完备——`AGENTS.md §8` 覆盖全流程（复盘→知识库覆盖检查→examples 提拔）。
+  本次已按此机制更新 `wsl_verilator_ops.md`（§9 WSL→Vivado 桥接、§10 Vivado 输出编码）。
+
+**🎉 阶段 A–E 全阶段完成！** 路线图主轨道已全部实现。剩余：
+- 🧪 8 点 DFT 全流程验证（烤整个 agent）
+- ISE-4 ISE VM 端到端验证
 
 ---
 
