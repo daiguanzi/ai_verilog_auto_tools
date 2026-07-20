@@ -1,0 +1,1 @@
+-debug "typical" "work.tb_adder" -s "snap_adder" 

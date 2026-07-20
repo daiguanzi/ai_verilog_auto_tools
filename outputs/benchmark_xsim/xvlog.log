@@ -1,0 +1,4 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/12430/Desktop/ai_verilog_auto_tools/outputs/benchmark/adder.v" into library work
+INFO: [VRFC 10-311] analyzing module adder
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/12430/Desktop/ai_verilog_auto_tools/outputs/benchmark_xsim/tb_adder.v" into library work
+INFO: [VRFC 10-311] analyzing module tb_adder
