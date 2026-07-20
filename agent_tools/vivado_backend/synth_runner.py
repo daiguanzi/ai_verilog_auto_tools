@@ -98,20 +98,43 @@ def generate_synth_tcl(
 # Vivado invocation
 # ---------------------------------------------------------------------------
 
-def run_vivado(tcl_path: str, timeout: int = 600) -> tuple[int, str, str]:
-    """Run Vivado in batch mode with the given Tcl script.
+def _find_vivado() -> str | None:
+    """Return the vivado.bat path, trying both Windows and WSL locations."""
+    candidates = [
+        VIVADO_BAT,
+        VIVADO_BAT.replace("C:\\", "/mnt/c/").replace("\\", "/"),
+    ]
+    for p in candidates:
+        if os.path.isfile(p):
+            return p
+    return None
 
-    Returns (returncode, stdout, stderr).
-    """
+
+def run_vivado(tcl_path: str, timeout: int = 600) -> tuple[int, str, str]:
+    """Run Vivado in batch mode with the given Tcl script."""
+    vivado_bin = _find_vivado()
+    if vivado_bin is None:
+        raise FileNotFoundError(f"vivado.bat not found")
+
     tcl_abs = os.path.abspath(tcl_path)
-    cmd = [VIVADO_BAT, "-mode", "batch", "-source", tcl_abs, "-nolog"]
+
+    # On WSL/Linux, call .bat through cmd.exe
+    is_linux = os.name != "nt" or vivado_bin.startswith("/mnt/")
+    if is_linux:
+        win_path  = vivado_bin.replace("/mnt/c/", "C:/").replace("/", "\\")
+        tcl_win   = tcl_abs.replace("/mnt/c/", "C:/").replace("/", "\\")
+        cmd = ["cmd.exe", "/c", f'{win_path} -mode batch -source "{tcl_win}" -nolog']
+        cwd = os.path.dirname(tcl_abs)  # WSL path for subprocess on Linux
+    else:
+        cmd = [vivado_bin, "-mode", "batch", "-source", tcl_abs, "-nolog"]
+        cwd = os.path.dirname(tcl_abs)
     proc = subprocess.run(
         cmd,
-        capture_output=True, text=True,
+        capture_output=True,
         timeout=timeout,
-        cwd=os.path.dirname(tcl_abs),
+        cwd=cwd,
     )
-    return proc.returncode, proc.stdout or "", proc.stderr or ""
+    return proc.returncode, proc.stdout.decode("utf-8", errors="replace"), proc.stderr.decode("utf-8", errors="replace") if proc.stderr else ""
 
 
 # ---------------------------------------------------------------------------
@@ -132,10 +155,10 @@ def vivado_synth(
 
     Returns {pass, reports: {utilization, timing}, log, error}
     """
-    if not os.path.isfile(VIVADO_BAT):
+    if not _find_vivado():
         return {
             "pass": False,
-            "error": f"Vivado not found at {VIVADO_BAT}. Install Vivado 2018.2 or update VIVADO_BAT.",
+            "error": f"Vivado not found at {VIVADO_BAT} or WSL path. Install Vivado 2018.2.",
             "reports": {},
         }
 

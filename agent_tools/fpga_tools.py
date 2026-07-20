@@ -657,7 +657,7 @@ if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser(description="FPGA Project Tools")
-    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "ip-scan", "vivado-ip-tcl", "vivado-synth", "vivado-xdc"])
+    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "full-run", "ip-scan", "ise-synth", "ise-sim", "vivado-ip-tcl", "vivado-synth", "vivado-xdc"])
     p.add_argument("project_dir", help="Path to project directory")
     p.add_argument("--json", action="store_true", help="Output JSON")
     p.add_argument("--sim", default="verilator", help="Simulator for run command")
@@ -740,6 +740,82 @@ if __name__ == "__main__":
                     print(f"  [WARN]  {w[:200]}")
                 print(f"{'='*60}\n")
         sys.exit(0 if res.get("pass", False) else 1)
+
+    elif args.command == "full-run":
+        print(f"\n{'#'*60}")
+        print(f"  FULL RUN: {args.project_dir}")
+        print(f"{'#'*60}")
+
+        exit_code = 0
+
+        # 1) Lint
+        print("\n--- Step 1: Lint ---")
+        lint_res = lint_project(args.project_dir)
+        lint_pass = lint_res.get("pass", False)
+        status = "PASS" if lint_pass else "FAIL"
+        print(f"  Lint: {status}  ({len(lint_res.get('errors',[]))} errors, "
+              f"{len(lint_res.get('warnings',[]))} warnings)")
+
+        # 2) Simulation
+        print("\n--- Step 2: Simulation ---")
+        sim_res = run_project(args.project_dir, sim=args.sim, waves=args.waves, lint=False)
+        sim_pass = sim_res.get("pass", False)
+        status = "PASS" if sim_pass else "FAIL"
+        print(f"  Simulation: {status}  "
+              f"({sim_res.get('tests_pass',0)}/{sim_res.get('tests_total',0)} pass)")
+
+        # 3) Vivado synthesis (if vivado section exists)
+        cfg = load_project_config(args.project_dir)
+        if cfg is not None and cfg.get("vivado"):
+            print("\n--- Step 3: Vivado Synthesis ---")
+            try:
+                from agent_tools.vivado_backend.synth_runner import vivado_synth
+            except ImportError:
+                from vivado_backend.synth_runner import vivado_synth
+            proj = cfg["__project_dir"]
+            vcfg = cfg["vivado"]
+            part = vcfg.get("part", args.device)
+            top = cfg["toplevel"]
+            sources_full = [str(Path(proj) / s) for s in cfg["sources"]]
+            xdc = vcfg.get("xdc", [])
+            xdc_full = [str(Path(proj) / x) for x in xdc]
+            # auto-include IP stubs
+            workspace_root = Path(__file__).resolve().parent.parent
+            ip_cfg = cfg.get("ip", {})
+            for ip_name, ip_entry in ip_cfg.items():
+                stub = ip_entry.get("stub", "")
+                if stub:
+                    stub_abs = str(workspace_root / stub) if not os.path.isabs(stub) else stub
+                    if os.path.exists(stub_abs) and stub_abs not in sources_full:
+                        sources_full.append(stub_abs)
+            synth_res = vivado_synth(
+                project_dir=os.path.join(proj, "vivado_synth"),
+                part=part, sources=sources_full, top=top,
+                xdc_files=xdc_full, project_name=top)
+            synth_pass = synth_res.get("pass", False)
+            timing = synth_res.get("reports", {}).get("timing", {})
+            util   = synth_res.get("reports", {}).get("utilization", {})
+            status = "PASS" if synth_pass else "FAIL"
+            print(f"  Synth: {status}")
+            if synth_res.get("error"):
+                print(f"    Error: {synth_res['error']}")
+            if util:   print(f"  Util:  {util}")
+            if timing: print(f"  WNS={timing.get('wns_ns')}ns  TNS={timing.get('tns_ns')}ns")
+            if not synth_pass:
+                exit_code = 1
+        else:
+            print("\n--- Step 3: Vivado Synthesis ---")
+            print("  (skipped — no 'vivado' section in project.json)")
+
+        if not lint_pass:
+            exit_code = 1
+        if not sim_pass:
+            exit_code = 1
+
+        print(f"\n{'#'*60}")
+        print(f"  FULL RUN: {'PASS' if exit_code == 0 else 'FAIL'}")
+        print(f"{'#'*60}\n")
+        sys.exit(exit_code)
 
     elif args.command == "ip-scan":
         print(print_ip_scan(args.project_dir))
@@ -843,3 +919,59 @@ if __name__ == "__main__":
             print(f"  Clocks: {len(clocks)}")
         if pins:
             print(f"  Pins: {len(pins)}")
+
+    elif args.command == "ise-synth":
+        try:
+            from agent_tools.ise_backend.ise_remote import ensure_vm_ready, ise_synth
+        except ImportError:
+            from ise_backend.ise_remote import ensure_vm_ready, ise_synth
+        cfg = load_project_config(args.project_dir)
+        if cfg is None:
+            print(f"ERROR: No valid project.json in {args.project_dir}")
+            sys.exit(1)
+        ise_cfg = cfg.get("ise", {})
+        device = ise_cfg.get("device", args.device)
+        top = cfg["toplevel"]
+        sources = ise_cfg.get("sources", cfg["sources"])
+        ensure_vm_ready()
+        print(f"ISE synthesising {top} for {device}...")
+        result = ise_synth(
+            project_dir=cfg["__project_dir"],
+            top=top, device=device, sources=sources)
+        print(f"  Synth: {'PASS' if result['pass'] else 'FAIL'}")
+        if result.get("error"):
+            print(f"  Error: {result['error']}")
+        for step, info in result.get("steps", {}).items():
+            print(f"    {step}: {'OK' if info['ok'] else 'FAIL'}")
+        sys.exit(0 if result["pass"] else 1)
+
+    elif args.command == "ise-sim":
+        try:
+            from agent_tools.ise_backend.ise_remote import ensure_vm_ready, ise_sim
+        except ImportError:
+            from ise_backend.ise_remote import ensure_vm_ready, ise_sim
+        cfg = load_project_config(args.project_dir)
+        if cfg is None:
+            print(f"ERROR: No valid project.json in {args.project_dir}")
+            sys.exit(1)
+        ise_cfg = cfg.get("ise", {})
+        top = cfg["toplevel"]
+        sources = ise_cfg.get("sources", cfg["sources"])
+        tb_file = ise_cfg.get("tb_file")
+        tb_module = ise_cfg.get("tb_module")
+        signals = ise_cfg.get("signals")
+        test_vectors = ise_cfg.get("test_vectors")
+        if not tb_file and not test_vectors:
+            print("ERROR: ISE sim needs tb_file or test_vectors in project.json ise section")
+            sys.exit(1)
+        ensure_vm_ready()
+        print(f"ISE simulating {top}...")
+        result = ise_sim(
+            project_dir=cfg["__project_dir"],
+            top=top, sources=sources,
+            tb_file=tb_file, tb_module=tb_module,
+            signals=signals, test_vectors=test_vectors)
+        print(f"  ISim: {'PASS' if result['pass'] else 'FAIL'}  tests={result.get('tests', 0)}")
+        if result.get("error"):
+            print(f"  Error: {result['error']}")
+        sys.exit(0 if result["pass"] else 1)

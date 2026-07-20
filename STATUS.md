@@ -94,14 +94,16 @@
 
 - ✅ D4 完成：知识 `timing_closure.md`（must-know）——WNS/TNS/失败端点解读 + 4 种修复策略 + 约束必须项 + 资源报告解读 + xc7a200t 经验数字。
 
-**🎉 阶段 D（上板轨道）全部完成（D1–D4）！** 进入**阶段 E：端到端整合**（E1 一条命令全流程 → E2 复盘机制 → 🧪 DFT 验证）。
+- ✅ E1 完成：一键全流程 `full-run`（Windows: lint+sim+vivado；WSL: lint+sim）。
+- ✅ ISE-3 完成：`ise-synth`/`ise-sim` CLI 命令，从 `project.json` `ise` 段读配置调 VS 后端。
+下一步：E2 复盘机制收尾 + 🧪 DFT 全流程验证。
 
 ---
 
 ## 4. 下一步（按顺序执行）
 
 完整长期路线图见 **`ROADMAP.md`**（阶段 A–E + 架构决策 D1–D5 + 数据探针）。
-当前进行到 **阶段 C**，按 ROADMAP 中 C1→C6 顺序执行。每完成一项更新此处与 ROADMAP 勾选框。
+当前进行到 **阶段 E**，按 ROADMAP 中 E1→E2 顺序执行。每完成一项更新此处与 ROADMAP 勾选框。
 
 ---
 

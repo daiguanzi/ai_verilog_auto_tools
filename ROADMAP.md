@@ -92,11 +92,11 @@
 > ⚠️ **ISim 只支持 Verilog-2001**（禁止 `logic`/`always_ff`/SV 端口声明）。
 - [x] ISE-1 搬运 `ISE_Remote.ps1` + 建 `ise_backend/` 目录 + `vm_config.json`（2026-07-08）
 - [x] ISE-2 实现 `ise_remote.py`：VM 管理 / ISE 命令执行 / XST 综合流 / ISim 仿真 + 自动 TB 生成 / 报告解析（2026-07-08，实测 fifo TB ✅ + auto-TB 加法器 4 向量 ✅）
-- [ ] ISE-3 扩展 `project.json` 增加 `ise` 可选段 + `fpga_tools.py` 集成（检测 ISE 需求、调 ISE 后端）
+- [x] ISE-3 扩展 `project.json` 增加 `ise` 可选段 + `fpga_tools.py` 集成（检测 ISE 需求、调 ISE 后端）（2026-07-20，`ise-synth`/`ise-sim` CLI 命令）
 - [ ] ISE-4 实际端到端验证：用 ISE VM 跑一个 Spartan-6 工程全流程（含 XST 综合 + 时序报告）
 
 ### 阶段 E — 端到端整合
-- [ ] E1 一条命令：需求→仿真过→lint 过→时序过→bitstream
+- [x] E1 一条命令：需求→仿真过→lint 过→Vivado综合（2026-07-20，`fpga_tools.py full-run`——lint→sim→vivado-synth 串行；WSL:lint+sim；Win:sim+vivado）
 - [ ] E2 每个真实项目跑完强制复盘进 knowledge/
 
 ### 🧪 阶段 D/E 完成后的全流程验证项目

@@ -44,3 +44,14 @@ related: [knowledge/simulator/verilator_cocotb.md]
 7. **unpacked 数组 + generate 输出管道在 Verilator 中脆弱**：用显式命名寄存器
    （`dout_s0, dout_s1, dout_s2`）代替 `logic [W-1:0] dout_q [0:N]` +
    `generate` 循环。更简单、更可靠。（参见 `ip_stub_development.md`。）
+
+8. **fpga_tools.py CLI 导入模式**：当 `python agent_tools/fpga_tools.py` 以
+   脚本方式运行时，`from agent_tools.xxx` 会失败（Python 只把 `agent_tools/`
+   加到 `sys.path`，不把工作区根加进去）。所有 CLI 命令的导入必须用回退模式：
+   ```python
+   try:
+       from agent_tools.xxx import something
+   except ImportError:
+       from xxx import something
+   ```
+   vivado_backend、ise_backend、sim_driver 都适用此规则。
