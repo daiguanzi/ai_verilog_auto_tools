@@ -114,6 +114,25 @@ Agent 自主调度三条原则（详见 `AGENTS.md §4`）：
 - [x] **8 点 DFT**（2026-07-21）——Verilator 4/4 ✅ / ModelSim ✅ / Vivado 综合 222LUT/582Reg/4DSP
   - Vivado 实现失败：516 I/O > 285（xc7a200t 封装限制）；RTL 逻辑正确，需作为子模块使用
   - 已提拔为 `examples/11_dft8`
+- [x] **DFT8-AXI 总线封装**（2026-07-21）—— Verilator 4/4 ✅ / ModelSim ✅ / full-run ✅ / timing_loop 收敛
+  - AXI-Lite 总线封装，端口 516→20，综合通过 923LUT/1105Reg/4DSP
+  - 新增 `vivado-sim` 独立命令，full-run 自动接入 timing_loop
+  - 已提拔为 `examples/12_dft8_axi`
+
+### 🔧 工具升级路线（post-V3）
+- [x] U1 full-run 自动接 timing_loop（2026-07-21）
+- [ ] U2 生成 GUI 可打开的 Vivado 项目（复用 project_manager.py）
+- [ ] U3 自动 .v TB 生成器升级（支持多周期 FSM + 随机向量）
+- [ ] U4 agent_tools 配置文件（统一路径/默认参数）
+- [ ] U5 webfetch 实战验证（上网搜资料→写入知识库）
+- [ ] U6 ISE-4 端到端验证（暂缓）
+
+### 🧪 测试盲区覆盖项目
+- [ ] P1 FIR 滤波器（DSP 流水线 + 多级管线）
+- [ ] P2 异步 FIFO（CDC 跨时钟域）
+- [ ] P3 真 Xilinx IP 上板验证（BRAM/FIFO）
+- [ ] P4 AXI-Stream→AXI-Lite 总线桥
+- [ ] P5 覆盖率驱动随机验证
 
 ---
 
@@ -130,4 +149,4 @@ Agent 自主调度三条原则（详见 `AGENTS.md §4`）：
 | — | 2026-06-22 | 制定长期路线图（阶段 A–E），锁定架构决策 D1–D5 |
 | v2 | 2026-07-08 | 阶段 C 完成（替身库 3 种 + IP 扫描器 + project.json IP 段） |
 | v3 | 2026-07-17 | 阶段 D 完成（Vivado 综合 + XDC + 时序循环 + 知识库） |
-| v3.1 | 2026-07-20 | V3 执行流程（Agent 自主调度）+ ModelSim 后端 + full-run 改认证模式 |
+| v3.2 | 2026-07-21 | DFT8-AXI 项目（AXI 总线封装）+ vivado-sim CLI + full-run timing_loop 接入 + 4 新知识条目 |

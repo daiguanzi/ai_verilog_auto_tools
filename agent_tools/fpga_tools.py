@@ -917,6 +917,40 @@ if __name__ == "__main__":
                     print(f"    Error: {synth_res['error']}")
                 if results["util"]: print(f"  Util:  {results['util']}")
                 if results["timing"]: print(f"  WNS={results['timing'].get('wns_ns')}ns  TNS={results['timing'].get('tns_ns')}ns")
+
+                # ---- Timing loop (auto-relax if WNS < 0) ----
+                if (results.get("synth_pass") and results.get("timing")
+                        and results["timing"].get("wns_ns") is not None
+                        and results["timing"]["wns_ns"] < 0
+                        and xdc_files):
+                    print("\n--- Timing Loop (WNS < 0, auto-relaxing) ---")
+                    try:
+                        from vivado_backend.synth_runner import timing_loop
+                        xdc_path = xdc_files[0]
+                        xdc_content = Path(xdc_path).read_text(encoding="ascii")
+                        xdc_tpl = re.sub(r'-period\s+[\d.]+', '-period {period}', xdc_content)
+                        clk_cfgs = vcfg.get("clocks", [{}])
+                        init_period = float(clk_cfgs[0].get("period_ns", 10.0))
+                        tl_res = timing_loop(
+                            project_dir=os.path.join(proj, "vivado_timing_loop"),
+                            part=vcfg.get("part", args.device),
+                            sources=sources,
+                            top=top,
+                            xdc_tpl=xdc_tpl,
+                            xdc_path=xdc_path,
+                            initial_period_ns=init_period,
+                            max_iters=3,
+                            timeout=timeout_s,
+                        )
+                        results["timing_loop"] = tl_res
+                        if tl_res.get("pass"):
+                            results["timing"] = {"wns_ns": tl_res["final_wns"], "tns_ns": tl_res["final_tns"]}
+                            print(f"  Timing loop: CONVERGED @ {tl_res['final_period_ns']}ns (WNS=+{tl_res['final_wns']:.2f}ns after {tl_res['iters']} iters)")
+                        else:
+                            exit_code = 1
+                            print(f"  Timing loop: FAILED after {tl_res.get('iters','?')} iters")
+                    except Exception as e:
+                        print(f"  Timing loop: SKIPPED - {e}")
             except Exception as e:
                 results["synth_pass"] = False
                 print(f"  Synth: SKIPPED - {e}")

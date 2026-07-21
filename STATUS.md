@@ -25,9 +25,9 @@
 | Vivado | XDC 约束生成、综合/实现/bitstream、时序报告解析 | `vivado-synth`/`vivado-xdc` |
 | Vivado 仿真 | ModelSim(2.3x快)/xsim 行为仿真，自动 .v TB 生成 | `vivado-sim` |
 | ISE VM | ISE 14.7 VM 通过 VirtualBox 调用，ISim 仿真+综合 | `ise-synth`/`ise-sim`（按需） |
-| 时序 | timing_loop 自动放宽周期→收敛 | Phase D3 已验证 |
+| 时序 | timing_loop 自动放宽周期→收敛，full-run 自动接入 | Phase D3 已验证 ✅ |
 | 工程管理 | .xpr 打开/备份/git/增删文件 | `vivado_backend/project_manager.py` |
-| 知识库 | 18 条知识条目（sim/patterns），复盘机制 | `knowledge/` |
+| 知识库 | 21 条知识条目（sim/patterns），复盘机制 | `knowledge/` |
 
 ---
 
@@ -68,6 +68,7 @@ ModelSim 全过   → 问用户 → full-run          (分钟级，综合认证)
 ✅ V3 自主调度机制       (AGENTS §4)
 🧊 ISE VM               (ISE-1/2/3 done, ISE-4 待端到端验证)
 🧪 DFT 验证项目 ✅（已提拔 11_dft8）
+✅ DFT8-AXI 全流程 ✅（已提拔 12_dft8_axi，AXI 总线封装 + full-run PASS + timing_loop 收敛）
 ```
 
 ---
@@ -87,6 +88,28 @@ ModelSim 全过   → 问用户 → full-run          (分钟级，综合认证)
 
 ## 7. 下一步
 
-- ISE-4 端到端验证（ISE VM 全流程跑通）
-- 小项目验证：AXI+FIFO 替身流程 / 自动 .v TB 生成器升级（支持多周期 FSM）
-- 知识库持续积累：每完成一个项目写复盘 + 更新 knowledge/
+### 工具升级（按优先级）
+| # | 升级方向 | 状态 | 工作量 |
+|---|---------|------|--------|
+| U1 | full-run 自动接 timing_loop | ✅ done (2026-07-21) | 小 |
+| U2 | 生成 GUI 可打开的 Vivado 项目 | ⬜ pending | 中 |
+| U3 | 自动 .v TB 生成器升级（多周期 FSM） | ⬜ pending | 中 |
+| U4 | agent_tools 配置文件（统一路径/默认参数） | ⬜ pending | 小 |
+| U5 | webfetch 实战验证（真正上网搜资料写知识库） | ⬜ pending | 小 |
+| U6 | ISE-4 端到端验证（ISE VM 全流程跑通） | ⬜ 暂缓 | 大 |
+
+### 测试盲区覆盖（按优先级）
+| # | 项目 | 验证能力 | 状态 |
+|---|------|---------|------|
+| P1 | FIR 滤波器 (DSP 流水线) | 多级管线 + 资源优化 | ⬜ pending |
+| P2 | 异步 FIFO (CDC 跨时钟域) | CDC 知识条目有效性 | ⬜ pending |
+| P3 | 真 Xilinx IP 上板（BRAM/FIFO） | IP 双轨无缝性 | ⬜ pending |
+| P4 | AXI-Stream→AXI-Lite 桥 | 总线混合 + BFM 组合 | ⬜ pending |
+| P5 | 覆盖率驱动随机验证 | B3 随机化深度 | ⬜ pending |
+| P6 | 主动总线设计（从 Phase 0 就预防 IO 超标） | ✅ dft8_axi 已验证 | done |
+
+### 优先级建议
+1. **FIR 滤波器**（覆盖 DSP 流水线 + 多级管线 + 最常用 FPGA 应用）
+2. **U2 GUI Vivado 项目生成**（用户高优先级）
+3. **U5 webfetch 实战**（用户高优先级）
+4. **异步 FIFO**（覆盖 CDC 最危险 bug 类）
