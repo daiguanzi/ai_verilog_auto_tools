@@ -1,0 +1,28 @@
+# vsim -c -do "run_msim.do" work.tb_bram_acc 
+# Start time: 22:58:21 on Jul 21,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# 
+# //  ModelSim SE-64 10.4 Dec  3 2014 
+# //
+# //  Copyright 1991-2014 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY INFORMATION
+# //  WHICH IS THE PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS
+# //  LICENSORS AND IS SUBJECT TO LICENSE TERMS.
+# //  THIS DOCUMENT CONTAINS TRADE SECRETS AND COMMERCIAL OR FINANCIAL
+# //  INFORMATION THAT ARE PRIVILEGED, CONFIDENTIAL, AND EXEMPT FROM
+# //  DISCLOSURE UNDER THE FREEDOM OF INFORMATION ACT, 5 U.S.C. SECTION 552.
+# //  FURTHERMORE, THIS INFORMATION IS PROHIBITED FROM DISCLOSURE UNDER
+# //  THE TRADE SECRETS ACT, 18 U.S.C. SECTION 1905.
+# //
+# Loading sv_std.std
+# Loading work.tb_bram_acc(fast)
+# Loading work.bram_acc(fast)
+# Loading work.ip_bram(fast)
+# do run_msim.do
+# === ALL TESTS PASSED (          1 vectors) ===
+# ** Note: $finish    : C:/Users/12430/Desktop/ai_verilog_auto_tools/outputs/bram_acc/vivado_sim_modelsim/tb_bram_acc.v(37)
+#    Time: 95 ns  Iteration: 1  Instance: /tb_bram_acc
+# End time: 22:58:25 on Jul 21,2026, Elapsed time: 0:00:04
+# Errors: 0, Warnings: 0

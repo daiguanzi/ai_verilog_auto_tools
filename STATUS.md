@@ -89,35 +89,34 @@ ModelSim 全过   → 问用户 → full-run          (分钟级，综合认证)
 
 ## 7. 下一步
 
-### 工具升级（按优先级）
+### 工具升级
 | # | 升级方向 | 状态 | 工作量 |
 |---|---------|------|--------|
-| U1 | full-run 自动接 timing_loop | ✅ done (2026-07-21) | 小 |
-| U2 | 生成 GUI 可打开的 Vivado 项目 | ✅ done (2026-07-21) | 中 |
-| U3 | 自动 .v TB 生成器升级（多周期 FSM） | ⬜ pending | 中 |
-| U4 | agent_tools 配置文件（统一路径/默认参数） | ⬜ pending | 小 |
-| U5 | webfetch 实战验证（上网搜资料→写入知识库） | ✅ done (2026-07-21) | 小 |
-| U6 | ISE-4 端到端验证（ISE VM 全流程跑通） | ⬜ 暂缓 | 大 |
-| T1 | Pipeline Advisor：解析 failing path → 插入流水线寄存器（策略 2） | ⬜ pending | 大 |
-| T2 | Logic Depth Optimizer：分析乘法/大扇出级联 → 建议拆分（策略 3） | ⬜ pending | 大 |
-| U7 | AGENTS §10 启动清单加"重读最近复盘" | ⬜ pending | 小 |
-| U8 | full-run 加 --no-sim 跳过已通过仿真 | ✅ done (2026-07-21) | 小 |
-| U9 | vivado-project 增量更新模式 | ✅ done (2026-07-21) | 小 |
+| U1 | full-run 自动接 timing_loop | ✅ | 小 |
+| U2 | 生成 GUI 可打开的 Vivado 项目 | ✅ | 中 |
+| U3 | 自动 .v TB 生成器升级（多周期 FSM） | ⬜ pending (spec ready) | 中 |
+| U4 | agent_tools 配置文件 | ✅ | 小 |
+| U5 | webfetch 实战验证 | ✅ | 小 |
+| U6 | ISE-4 端到端验证 | 🧊 暂缓 | 大 |
+| T1 | Pipeline Advisor (timing_advise) | ✅ | 大 |
+| T2 | Logic Depth Optimizer (timing_advise) | ✅ | 大 |
+| U7 | AGENTS §10 "重读最近复盘" | ✅ | 小 |
+| U8 | full-run --no-sim | ✅ | 小 |
+| U9 | vivado-project 增量更新 | ✅ | 小 |
 
-### 测试盲区覆盖（按优先级）
+### 项目覆盖
 | # | 项目 | 验证能力 | 状态 |
 |---|------|---------|------|
-| P1 | FIR 滤波器 (DSP 流水线) | 多级管线 + 资源优化 | ✅ done (2026-07-21) |
-| P2 | 异步 FIFO (CDC 跨时钟域) | CDC 知识条目有效性 | ⬜ pending |
-| P3 | 真 Xilinx IP 上板（BRAM/FIFO） | IP 双轨无缝性 | ⬜ pending |
-| P4 | AXI-Stream→AXI-Lite 桥 | 总线混合 + BFM 组合 | ⬜ pending |
-| P5 | 覆盖率驱动随机验证 | B3 随机化深度 | ⬜ pending |
-| P6 | 主动总线设计（Phase 0 预防 IO 超标） | ✅ dft8_axi 已验证 | done |
+| P1 | FIR 滤波器 (DSP 流水线) | ✅ examples/13 | done |
+| P2 | 异步 FIFO (CDC) | ✅ examples/14 | done |
+| P3 | BRAM IP 双轨验证 | ✅ outputs/bram_acc | done |
+| P4 | AXI-Stream→AXI-Lite 桥 | ✅ outputs/axistream_bridge | done |
+| P5 | 覆盖率驱动随机验证 | ⬜ pending (spec ready) | 中 |
+| P6 | 主动总线设计 (IO 超标预防) | ✅ | done |
 
 ### 优先级建议
-1. **P2 异步 FIFO**（覆盖 CDC 最危险 bug 类，目前最大盲区）
-2. **T1/T2 时序优化策略**（Pipeline Advisor + Logic Depth Optimizer）
-3. **P3 真 Xilinx IP 上板**（IP 双轨验证）
-4. **U3 自动 .v TB 生成器升级**（配合活项目推进）
+1. **P5 覆盖率驱动验证** — 最后的能力缺口
+2. **U3 自动 TB 升级** — 提升多周期 FSM 项目的测试自动化
+3. 新一轮项目建议：复杂协议 (Ethernet/I2C)、多时钟系统集成
 5. **U4 agent_tools 配置文件**
 6. **U7 AGENTS 启动清单改进**（小改动，随时可做）

@@ -1,0 +1,19 @@
+{
+    "sources": ["src/bram_acc.sv"],
+    "toplevel": "bram_acc",
+    "test_module": "tb.test_bram_acc",
+    "sim": "verilator",
+    "ip": {
+        "bram": {
+            "type": "blk_mem_gen",
+            "stub": "ip_models/bram/ip_bram.sv",
+            "params": {"WIDTH_A": 32, "DEPTH_A": 256, "WIDTH_B": 32, "DEPTH_B": 256, "MODE": 0, "LATENCY": 1}
+        }
+    },
+    "vivado": {
+        "part": "xc7a200t-fbg484-2L",
+        "clocks": [{"port": "clk", "period_ns": 10.0, "name": "clk"}],
+        "clk_mhz": 100,
+        "xdc": ["constraints.xdc"]
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "sources": ["src/async_fifo.sv"],
+    "toplevel": "async_fifo",
+    "test_module": "tb.test_async_fifo",
+    "sim": "verilator",
+    "parameters": {"DEPTH": 8, "DW": 16},
+    "vivado": {
+        "part": "xc7a200t-fbg484-2L",
+        "clocks": [
+            {"port": "wclk", "period_ns": 10.0, "name": "wclk"},
+            {"port": "rclk", "period_ns": 12.0, "name": "rclk"}
+        ],
+        "clk_mhz": 100,
+        "xdc": ["constraints.xdc"]
+    }
+}
