@@ -87,7 +87,6 @@ ModelSim 全过   → 问用户 → full-run          (分钟级，综合认证)
 
 ## 7. 下一步
 
-- 🧪 DFT8 已验证通过：Verilator 4/4 ✅ / ModelSim ✅ / Vivado 综合 222LUT/582Reg/4DSP / 已提拔为 `examples/11_dft8`
-- 🧪 DFT8 IO 超量教训已记入 `AGENTS.md §9` + `synth_runner.py` 自动诊断 + `timing_closure.md`
 - ISE-4 端到端验证（ISE VM 全流程跑通）
-- 小项目验证：AXI+FIFO / 自动 .v TB 生成
+- 小项目验证：AXI+FIFO 替身流程 / 自动 .v TB 生成器升级（支持多周期 FSM）
+- 知识库持续积累：每完成一个项目写复盘 + 更新 knowledge/

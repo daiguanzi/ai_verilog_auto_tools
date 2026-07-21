@@ -177,6 +177,12 @@ fpga_tools.py full-run outputs/my_project --clk-freq 100
 | I need resource estimates | `fpga_tools.py vivado-synth` | Without timing |
 | User says "just synth" | `fpga_tools.py vivado-synth` | Skip sim steps |
 
+### Session End Routine
+After every development turn, the agent MUST:
+- Run `git status -sb` and report pending changes to the user
+- Provide the exact `git add -A; git commit -m "..."; git push` commands
+- Never commit or push automatically — always wait for the user to run them
+
 ---
 
 ## 5. Simulator Timing Rules
