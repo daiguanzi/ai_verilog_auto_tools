@@ -110,8 +110,10 @@ Agent 自主调度三条原则（详见 `AGENTS.md §4`）：
 3. **full-run = 认证报告**：一键输出 lint+Verilator+ModelSim+synth+timing 全流程结果
 
 ### 🧪 阶段 D/E 完成后的全流程验证项目
-- [ ] **8 点 DFT**（信号处理类）——测全流程：多模块层次 + BRAM/Mult 替身 + Python 参考模型 + scoreboard + Vivado 综合 → 资源/时序报告
-  测试目标：验证 agent 从需求 → RTL → 仿真 → lint → IP 替身 → Vivado 综合 → 时序报告 的完整闭环。
+### 🧪 DFT 全流程验证
+- [x] **8 点 DFT**（2026-07-21）——Verilator 4/4 ✅ / ModelSim ✅ / Vivado 综合 222LUT/582Reg/4DSP
+  - Vivado 实现失败：516 I/O > 285（xc7a200t 封装限制）；RTL 逻辑正确，需作为子模块使用
+  - 已提拔为 `examples/11_dft8`
 
 ---
 

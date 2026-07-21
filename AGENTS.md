@@ -49,7 +49,8 @@
 │   ├── 07_counter/         (up/down + load + enable)
 │   ├── 08_config_demo/     (project.json includes/defines/parameters)
 │   ├── 09_mac_unit/        (multi-module hierarchy + dep tree)
-│   └── 10_axil_regs/        (AXI-Lite register file + cocotbext-axi BFM)
+│   ├── 10_axil_regs/        (AXI-Lite register file + cocotbext-axi BFM)
+│   └── 11_dft8/              (complex DFT + hierarchy + ModelSim verified)
 │
 ├── templates/             ← Project & testbench skeletons
 │   ├── project.json
