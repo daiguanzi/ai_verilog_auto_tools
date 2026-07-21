@@ -1,7 +1,7 @@
 # STATUS.md — FPGA Agent 项目状态
 
 > 新对话开始时，AI 应读取：**AGENTS.md → STATUS.md → ROADMAP.md → knowledge/_index.md**
-> 最后更新：2026-07-20
+> 最后更新：2026-07-21
 
 ---
 
@@ -67,7 +67,7 @@ ModelSim 全过   → 问用户 → full-run          (分钟级，综合认证)
 ✅ 阶段 E  端到端整合    (E1–E2)
 ✅ V3 自主调度机制       (AGENTS §4)
 🧊 ISE VM               (ISE-1/2/3 done, ISE-4 待端到端验证)
-🧪 DFT 验证项目         (Verilator 4/4 PASS, Vivado 221LUT/582Reg, 待完整 V3)
+🧪 DFT 验证项目 ✅（已提拔 11_dft8）
 ```
 
 ---
@@ -87,5 +87,7 @@ ModelSim 全过   → 问用户 → full-run          (分钟级，综合认证)
 
 ## 7. 下一步
 
-- 🧪 DFT8 完整 V3 验证（Verilator→ModelSim→Vivado 综合）→ 复盘 → 提拔为 example
+- 🧪 DFT8 已验证通过：Verilator 4/4 ✅ / ModelSim ✅ / Vivado 综合 222LUT/582Reg/4DSP / 已提拔为 `examples/11_dft8`
+- 🧪 DFT8 IO 超量教训已记入 `AGENTS.md §9` + `synth_runner.py` 自动诊断 + `timing_closure.md`
 - ISE-4 端到端验证（ISE VM 全流程跑通）
+- 小项目验证：AXI+FIFO / 自动 .v TB 生成
