@@ -16,12 +16,19 @@
 │   ├── fpga_tools.py      ← Project scanner + CLI (scan/summary/run)
 │   ├── vivado_tools.py     ← Vivado Tcl IP generator
 │   ├── vivado_backend/      ← Vivado batch synthesis runner (synth_runner.py)
+│   │   ├── synth_runner.py ← Synthesis + timing + report parsing
+│   │   ├── xsim_runner.py  ← xsim simulation + auto-TB generator
+│   │   ├── modelsim_runner.py ← ModelSim simulation runner
+│   │   ├── project_manager.py ← .xpr open/backup/modify/save
+│   │   └── xdc_tools.py    ← XDC constraint generator
 │   ├── project_gen.py     ← Project skeleton generator
 │   ├── reference_reader.py ← Reads files from reference/
 │   └── ise_backend/       ← ISE 14.7 VM backend (ise_remote.py + config)
 │
 ├── ip_models/             ← Shared IP stub library (replaces vendor IPs for sim)
-│   └── bram/              ← Block RAM stub (SDP/ROM/SP_RAM, 5/5 contract tests)
+│   ├── bram/              ← Block RAM stub (SDP/ROM/SP_RAM, 5/5 contract tests)
+│   ├── fifo/              ← FIFO stub (common/indep clk, asymmetric, 5/5)
+│   └── multiplier/        ← Multiplier stub (signed/unsigned, 5/5)
 │
 ├── knowledge/             ← Agent-maintained knowledge base
 │   ├── _index.md          ← Master index of all knowledge items
@@ -108,6 +115,15 @@ python agent_tools/fpga_tools.py lint examples/01_adder
 python agent_tools/fpga_tools.py run examples/01_adder
 python agent_tools/fpga_tools.py run outputs/my_project --json
 python agent_tools/fpga_tools.py run outputs/my_project --no-lint
+
+# Vivado / ModelSim side
+python agent_tools/fpga_tools.py vivado-sim outputs/my_project --simulator modelsim
+python agent_tools/fpga_tools.py vivado-synth outputs/my_project
+python agent_tools/fpga_tools.py vivado-xdc outputs/my_project
+python agent_tools/fpga_tools.py ip-scan reference/beamform
+
+# Full certification (run ONCE, after all simulation passes)
+python agent_tools/fpga_tools.py full-run outputs/my_project --clk-freq 100
 ```
 
 All commands run from the **workspace root** (where this AGENTS.md lives).
