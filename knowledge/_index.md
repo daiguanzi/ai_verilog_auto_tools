@@ -32,4 +32,5 @@
 | [verilog_width_truncation.md](patterns/verilog_width_truncation.md) | Verilog 宽度截断：大位宽拼接赋值到小位宽目标 | **must-know** | 2026-07-21 |
 | [multi_block_handshake.md](patterns/multi_block_handshake.md) | 跨 Always 块的 Done/Start 握手时序 | high | 2026-07-21 |
 | [model_dut_format_align.md](patterns/model_dut_format_align.md) | 参考模型与 DUT 输出数值格式对齐 | high | 2026-07-21 |
+| [webfetch_strategy.md](patterns/webfetch_strategy.md) | webfetch 搜索策略——FPGA 知识获取 | medium | 2026-07-21 |
 | [timing_closure.md](patterns/timing_closure.md) | 时序收敛与资源优化——从 Vivado 报告到可上板的 RTL | **must-know** | 2026-07-17 |

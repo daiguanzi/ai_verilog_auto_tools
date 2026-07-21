@@ -1,0 +1,12 @@
+{
+    "sources": ["src/fir_axi_top.v"],
+    "toplevel": "fir_axi_top",
+    "test_module": "tb.test_fir",
+    "sim": "verilator",
+    "vivado": {
+        "part": "xc7a200t-fbg484-2L",
+        "clocks": [{"port": "clk", "period_ns": 10.0, "name": "clk"}],
+        "clk_mhz": 100,
+        "xdc": ["constraints.xdc"]
+    }
+}

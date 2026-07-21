@@ -94,6 +94,57 @@ def generate_synth_tcl(
     return "\r\n".join(lines) + "\r\n"
 
 
+def generate_project_tcl(
+    project_name: str,
+    part: str,
+    sources: list[str],
+    top: str,
+    xdc_files: list[str] | None = None,
+    output_dir: str = ".",
+) -> str:
+    """Generate a Vivado Tcl script that creates a clean project for GUI use.
+
+    Unlike generate_synth_tcl, this does NOT run synthesis/implementation.
+    The user opens the generated .xpr in Vivado GUI to interact with the design.
+    """
+    lines = [
+        "# Auto-generated Vivado project script (GUI-ready)",
+        f"# Project: {project_name}  |  Part: {part}",
+        f"# Open {project_name}.xpr in Vivado GUI to explore the design",
+        "",
+        f"set output_dir {{{output_dir}}}",
+        f"file mkdir $output_dir",
+        "",
+        f"create_project {project_name} _{project_name} -part {part}",
+        "",
+        "# Add source files",
+    ]
+
+    for src in sources:
+        lines.append(f"add_files -norecurse {{{os.path.abspath(src).replace(chr(92), '/')}}}")
+
+    lines += [
+        f"set_property top {top} [current_fileset]",
+        "update_compile_order -fileset sources_1",
+        "",
+    ]
+
+    # Constraints
+    if xdc_files:
+        lines.append("# Add constraint files")
+        for xdc in xdc_files:
+            lines.append(f"add_files -fileset constrs_1 -norecurse {{{os.path.abspath(xdc).replace(chr(92), '/')}}}")
+        lines.append("")
+
+    lines += [
+        f'puts "Project created: [file normalize [get_property DIRECTORY [current_project]]]/{project_name}.xpr"',
+        'puts "Open this file in Vivado GUI to explore the design."',
+        "exit",
+    ]
+
+    return "\r\n".join(lines) + "\r\n"
+
+
 # ---------------------------------------------------------------------------
 # Vivado invocation
 # ---------------------------------------------------------------------------

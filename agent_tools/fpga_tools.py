@@ -714,7 +714,7 @@ if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser(description="FPGA Project Tools")
-    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "full-run", "ip-scan", "ise-synth", "ise-sim", "vivado-ip-tcl", "vivado-sim", "vivado-synth", "vivado-xdc"])
+    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "full-run", "ip-scan", "ise-synth", "ise-sim", "vivado-ip-tcl", "vivado-project", "vivado-sim", "vivado-synth", "vivado-xdc"])
     p.add_argument("project_dir", help="Path to project directory")
     p.add_argument("--json", action="store_true", help="Output JSON")
     p.add_argument("--sim", default="verilator", help="Simulator for run command")
@@ -1003,6 +1003,56 @@ if __name__ == "__main__":
         write_ip_tcl(out, args.device, specs)
         print(f"Tcl script written: {out}")
         print("Run:  vivado -mode batch -source _gen_ips.tcl")
+
+    elif args.command == "vivado-project":
+        cfg = load_project_config(args.project_dir)
+        if cfg is None:
+            print(f"ERROR: No valid project.json in {args.project_dir}")
+            sys.exit(1)
+        proj = cfg["__project_dir"]
+        vivado_cfg = cfg.get("vivado", {})
+        part = vivado_cfg.get("part", args.device)
+        top = cfg["toplevel"]
+        sources_full = [str(Path(proj) / s) for s in cfg["sources"]]
+        ws = Path(__file__).resolve().parent.parent
+        for ip_name, ip_entry in cfg.get("ip", {}).items():
+            stub = ip_entry.get("stub", "")
+            if stub:
+                stub_abs = str(ws / stub) if not os.path.isabs(stub) else stub
+                if os.path.exists(stub_abs) and stub_abs not in sources_full:
+                    sources_full.append(stub_abs)
+        xdc = vivado_cfg.get("xdc", [])
+        xdc_full = [str(Path(proj) / x) for x in xdc]
+
+        try:
+            from agent_tools.vivado_backend.synth_runner import generate_project_tcl, run_vivado
+        except ImportError:
+            from vivado_backend.synth_runner import generate_project_tcl, run_vivado
+
+        project_dir = os.path.join(proj, "vivado_project")
+        os.makedirs(project_dir, exist_ok=True)
+
+        tcl = generate_project_tcl(
+            project_name=top,
+            part=part,
+            sources=sources_full,
+            top=top,
+            xdc_files=xdc_full,
+            output_dir=project_dir,
+        )
+        tcl_path = os.path.join(project_dir, "_create_project.tcl")
+        Path(tcl_path).write_text(tcl, encoding="ascii")
+
+        print(f"Generating Vivado project for {top} ({part})...")
+        rc, out, err = run_vivado(tcl_path, timeout=120)
+        if rc == 0:
+            xpr = os.path.join(project_dir, f"_{top}", f"{top}.xpr")
+            print(f"Project created:\n  {xpr}")
+            print(f"Open with:  vivado {xpr}")
+            sys.exit(0)
+        else:
+            print(f"ERROR creating project (rc={rc}):\n{err[:500]}")
+            sys.exit(1)
 
     elif args.command == "vivado-sim":
         cfg = load_project_config(args.project_dir)
