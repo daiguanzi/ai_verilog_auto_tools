@@ -186,11 +186,27 @@ def vivado_synth(
         "timing": _parse_timing(os.path.join(out_dir, "timing.rpt")),
     }
 
+    # IO overutilization detection
+    error_msg = None
+    if not passed and "IO Placement failed due to overutilization" in log:
+        port_count = "?"
+        m = re.search(r"contains (\d+) I/O ports", log)
+        if m:
+            port_count = m.group(1)
+        error_msg = (
+            f"Placement failed: design has {port_count} top-level I/O ports "
+            f"(exceeds FPGA physical pin limit). "
+            f"This RTL is correct for simulation but needs a bus wrapper "
+            f"(AXI-Lite or addr+data bus) before it can be implemented on hardware. "
+            f"See AGENTS.md §9 quality rule 'Wrap parallel ports behind a bus if >100'."
+        )
+
     return {
         "pass": passed,
         "rc": rc,
         "reports": reports,
         "log": log,
+        "error": error_msg,
         "output_dir": out_dir,
     }
 

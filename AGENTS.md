@@ -351,6 +351,10 @@ Date: YYYY-MM-DD
 - **Lint before sim.** `run` auto-runs `verilator --lint-only -Wall -Wno-fatal` first; lint
   ERRORS block simulation (fix them), WARNINGS (width truncation, undriven, unused) only
   inform but should be reviewed since sim can't catch them. Use `--no-lint` only to bypass.
+- **Wrap parallel ports behind a bus if >100.** Large parallel-port top modules
+  (like DFT with 500+ I/Os) will fail Vivado implementation due to physical pin limits.
+  Use AXI-Lite or a simple addr+data bus — keep top-level ports under 100.
+  The internal logic stays the same.
 
 ---
 
