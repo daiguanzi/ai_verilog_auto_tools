@@ -1,7 +1,7 @@
 # Knowledge Base Index
 
 > Auto-generated. Agent updates this after each project review.
-> Last updated: 2026-06-10
+> Last updated: 2026-07-21
 
 ## Simulator Knowledge (`knowledge/simulator/`)
 
@@ -11,7 +11,7 @@
 | [wsl_verilator_ops.md](simulator/wsl_verilator_ops.md) | WSL + Verilator/cocotb 运行要点（从 Windows 宿主调用） | **must-know** | 2026-06-22 |
 | [vivado_batch_runner.md](simulator/vivado_batch_runner.md) | Vivado 批处理合成——Agent 调用要点 | high | 2026-07-17 |
 | [ise_vm_backend.md](simulator/ise_vm_backend.md) | ISE 14.7 虚拟机后端——从 Agent 自动调用 ISE 工具链 | high | 2026-07-08 |
-| [cocotbext_axi.md](simulator/cocotbext_axi.md) | cocotbext-axi 快速上手（API 要点与坑） | high | 2026-06-22 |
+| [cocotbext_axi.md](simulator/cocotbext_axi.md) | cocotbext-axi 快速上手（API 要点与坑 + AXI clock/ModelSim） | high | 2026-07-21 |
 | [verilator_reference.md](simulator/verilator_reference.md) | Verilator Official Reference Summary | reference | 2026-06-10 |
 | [cocotb_reference.md](simulator/cocotb_reference.md) | cocotb Official Reference Summary | reference | 2026-06-10 |
 
@@ -29,4 +29,7 @@
 | [axi_bus_verification.md](patterns/axi_bus_verification.md) | AXI-Lite/Stream 总线验证模式（cocotb + Verilator） | high | 2026-06-29 |
 | [cdc_guidelines.md](patterns/cdc_guidelines.md) | CDC（跨时钟域）要点——仿真看不出来的最危险问题 | **must-know** | 2026-06-29 |
 | [reset_strategy.md](patterns/reset_strategy.md) | 复位同步与复位策略——为什么异步复位不可靠 | high | 2026-06-29 |
+| [verilog_width_truncation.md](patterns/verilog_width_truncation.md) | Verilog 宽度截断：大位宽拼接赋值到小位宽目标 | **must-know** | 2026-07-21 |
+| [multi_block_handshake.md](patterns/multi_block_handshake.md) | 跨 Always 块的 Done/Start 握手时序 | high | 2026-07-21 |
+| [model_dut_format_align.md](patterns/model_dut_format_align.md) | 参考模型与 DUT 输出数值格式对齐 | high | 2026-07-21 |
 | [timing_closure.md](patterns/timing_closure.md) | 时序收敛与资源优化——从 Vivado 报告到可上板的 RTL | **must-know** | 2026-07-17 |

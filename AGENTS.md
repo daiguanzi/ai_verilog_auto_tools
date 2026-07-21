@@ -141,6 +141,12 @@ All commands run from the **workspace root** (where this AGENTS.md lives).
 1. Read user requirements / reference files
 2. Ask for clock frequency upfront (default 100 MHz if no answer)
 3. Check `knowledge/_index.md` for relevant patterns
+4. **Port count pre-check**: Count top-level ports after design. If >100, propose
+   AXI-Lite or addr+data bus wrapper BEFORE writing RTL. This prevents IO overutilization
+   failures at the Vivado implementation stage. (See `knowledge/patterns/timing_closure.md` §7)
+5. **Knowledge gap escalation**: If the knowledge base does not cover a needed topic,
+   use `webfetch` to search for relevant documentation/reference projects (Xilinx docs,
+   GitHub, open-source FPGA examples). Write learned knowledge back to `knowledge/`.
 
 ### Phase 1: Design + Write RTL + Verilator Iteration (seconds)
 ```

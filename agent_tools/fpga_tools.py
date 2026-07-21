@@ -714,7 +714,7 @@ if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser(description="FPGA Project Tools")
-    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "full-run", "ip-scan", "ise-synth", "ise-sim", "vivado-ip-tcl", "vivado-synth", "vivado-xdc"])
+    p.add_argument("command", choices=["scan", "summary", "find-top", "run", "lint", "full-run", "ip-scan", "ise-synth", "ise-sim", "vivado-ip-tcl", "vivado-sim", "vivado-synth", "vivado-xdc"])
     p.add_argument("project_dir", help="Path to project directory")
     p.add_argument("--json", action="store_true", help="Output JSON")
     p.add_argument("--sim", default="verilator", help="Simulator for run command")
@@ -969,6 +969,55 @@ if __name__ == "__main__":
         write_ip_tcl(out, args.device, specs)
         print(f"Tcl script written: {out}")
         print("Run:  vivado -mode batch -source _gen_ips.tcl")
+
+    elif args.command == "vivado-sim":
+        cfg = load_project_config(args.project_dir)
+        if cfg is None:
+            print(f"ERROR: No valid project.json in {args.project_dir}")
+            sys.exit(1)
+        proj = cfg["__project_dir"]
+        top = cfg["toplevel"]
+        sources = [str(Path(proj) / s) for s in cfg["sources"]]
+        ws = Path(__file__).resolve().parent.parent
+        for ip_name, ip_entry in cfg.get("ip", {}).items():
+            stub = ip_entry.get("stub", "")
+            if stub:
+                stub_abs = str(ws / stub) if not os.path.isabs(stub) else stub
+                if os.path.exists(stub_abs) and stub_abs not in sources:
+                    sources.append(stub_abs)
+        tb_file = os.path.join(proj, f"tb_{top}.v")
+        if not os.path.isfile(tb_file):
+            signals = _detect_signals(proj, top)
+            test_vectors = [{"stimulus": {}, "expected": {}, "label": "reset_only"}]
+            if not signals:
+                signals = [{"name": "clk", "width": 1, "dir": "input"}]
+        else:
+            signals = None
+            test_vectors = None
+
+        sim = args.simulator or "modelsim"
+        print(f"Running {sim.upper()} simulation for {top}...")
+        try:
+            if sim == "modelsim":
+                from vivado_backend.modelsim_runner import run_modelsim as _vsim
+            else:
+                from vivado_backend.xsim_runner import run_xsim as _vsim
+            vsim_res = _vsim(
+                os.path.join(proj, f"vivado_sim_{sim}"),
+                top=top, sources=sources,
+                signals=signals, test_vectors=test_vectors,
+                tb_file=tb_file if os.path.isfile(tb_file) else None,
+                timeout=args.timeout * 60 if args.timeout else 300)
+            if args.json:
+                print(json.dumps(vsim_res, indent=2, ensure_ascii=False))
+            else:
+                print(f"  {sim.upper()}: {'PASS' if vsim_res.get('pass') else 'FAIL'}")
+                if vsim_res.get("error"):
+                    print(f"  Error: {vsim_res['error']}")
+            sys.exit(0 if vsim_res.get("pass") else 1)
+        except Exception as e:
+            print(f"ERROR: {e}")
+            sys.exit(1)
 
     elif args.command == "vivado-synth":
         try:

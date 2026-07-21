@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Vivado v2018.2.2 (64-bit)
+# SW Build 2348494 on Mon Oct  1 18:25:44 MDT 2018
+# IP Build 2318053 on Mon Oct  1 21:44:26 MDT 2018
+# Start of session at: Tue Jul 21 15:15:15 2026
+# Process ID: 21276
+# Current directory: C:/Users/12430/Desktop/ai_verilog_auto_tools/outputs/dft8_axi/vivado_synth/_dft8_axi_top/dft8_axi_top.runs/impl_1
+# Command line: vivado.exe -log dft8_axi_top.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source dft8_axi_top.tcl -notrace
+# Log file: C:/Users/12430/Desktop/ai_verilog_auto_tools/outputs/dft8_axi/vivado_synth/_dft8_axi_top/dft8_axi_top.runs/impl_1/dft8_axi_top.vdi
+# Journal file: C:/Users/12430/Desktop/ai_verilog_auto_tools/outputs/dft8_axi/vivado_synth/_dft8_axi_top/dft8_axi_top.runs/impl_1\vivado.jou
+#-----------------------------------------------------------
+source dft8_axi_top.tcl -notrace

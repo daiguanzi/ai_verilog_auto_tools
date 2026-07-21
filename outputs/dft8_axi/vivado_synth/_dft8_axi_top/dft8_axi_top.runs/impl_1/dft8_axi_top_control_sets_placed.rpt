@@ -1,0 +1,442 @@
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.2.2 (win64) Build 2348494 Mon Oct  1 18:25:44 MDT 2018
+| Date         : Tue Jul 21 15:18:08 2026
+| Host         : han running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file dft8_axi_top_control_sets_placed.rpt
+| Design       : dft8_axi_top
+| Device       : xc7a200t
+-----------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Number of unique control sets                            |   374 |
+| Unused register locations in slices containing registers |   982 |
++----------------------------------------------------------+-------+
+
+
+2. Histogram
+------------
+
++--------+--------------+
+| Fanout | Control Sets |
++--------+--------------+
+|      2 |           74 |
+|      4 |           81 |
+|      6 |          103 |
+|      8 |          113 |
+|    16+ |            3 |
++--------+--------------+
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |               0 |            0 |
+| No           | No                    | Yes                    |              28 |            4 |
+| No           | Yes                   | No                     |               0 |            0 |
+| Yes          | No                    | No                     |               0 |            0 |
+| Yes          | No                    | Yes                    |            2182 |          575 |
+| Yes          | Yes                   | No                     |               0 |            0 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++----------------+----------------------+---------------------+------------------+----------------+
+|  Clock Signal  |     Enable Signal    |   Set/Reset Signal  | Slice Load Count | Bel Load Count |
++----------------+----------------------+---------------------+------------------+----------------+
+|  clk_IBUF_BUFG | regs_reg[1]__0[15]   | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[23]   | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | rvalid_q_i_1_n_0     | bvalid_q_i_3_n_0    |                1 |              2 |
+|  clk_IBUF_BUFG | regs[31][15]_i_1_n_0 | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | p_0_in[7]            | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs[29][7]_i_1_n_0  | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs[30][15]_i_1_n_0 | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[30][7]_i_1_n_0  | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[7]    | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs[28][15]_i_1_n_0 | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[7]    | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs[28][7]_i_1_n_0  | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs[29][23]_i_1_n_0 | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[29][15]_i_1_n_0 | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[27][7]_i_1_n_0  | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs[27][15]_i_1_n_0 | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[15]   | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[27][31]_i_1_n_0 | regs[0][31]_i_2_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[7]    | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[26][7]_i_1_n_0  | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[7]    | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[7]    | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs[27][23]_i_1_n_0 | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[23]   | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[25][7]_i_1_n_0  | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[15]   | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[25][23]_i_1_n_0 | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[26][15]_i_1_n_0 | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[25][15]_i_1_n_0 | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[15]   | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[23]   | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[31]  | regs[0][31]_i_2_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[7]    | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[23]   | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[31]   | regs[0][31]_i_2_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[7]   | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[7]    | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[7]    | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[7]    | regs[0][9]_i_1_n_0  |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[15]   | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[15]   | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[15]   | regs[0][17]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | bvalid_q_i_1_n_0     | bvalid_q_i_3_n_0    |                1 |              2 |
+|  clk_IBUF_BUFG | regs[31][31]_i_1_n_0 | regs[0][31]_i_2_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[31][23]_i_1_n_0 | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[31]  | regs[0][31]_i_2_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              2 |
+|  clk_IBUF_BUFG | regs[28][23]_i_1_n_0 | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs[30][23]_i_1_n_0 | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs[30][31]_i_1_n_0 | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs[30][31]_i_1_n_0 | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | p_0_in[15]           | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[23]   | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[31]   | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[31]   | regs[0][31]_i_2_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[23]   | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[23]   | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[31]   | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[23]  | regs[0][17]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[31]   | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[31]  | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[31]   | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[31]   | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[15]   | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[31]  | regs[0][31]_i_2_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[31]   | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | p_0_in[23]           | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | p_0_in[23]           | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[31]   | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[31]   | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[15]   | regs[0][17]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[15]   | regs[0][9]_i_1_n_0  |                1 |              4 |
+|  clk_IBUF_BUFG | p_0_in[31]           | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[23]  | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | p_0_in[31]           | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[23]   | regs[0][17]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[23]   | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[31]   | regs[0][31]_i_2_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[23]  | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[23]   | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[31]   | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[31]   | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[31]  | regs[0][31]_i_2_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[15]  | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[31]  | regs[0][31]_i_2_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[31]  | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[31]  | regs[0][31]_i_2_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[31]  | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[23]  | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[31]  | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[23]  | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[31]  | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[31]  | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[31]  | regs[0][31]_i_2_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[15]   | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[23]   | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[23]   | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[23]   | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[23]   | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[31]   | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[31]   | regs[0][31]_i_2_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[31]   | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[31]   | regs[0][31]_i_2_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[31]   | regs[0][31]_i_2_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs[25][31]_i_1_n_0 | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs[25][31]_i_1_n_0 | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs[26][23]_i_1_n_0 | regs[0][17]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs[26][23]_i_1_n_0 | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs[26][31]_i_1_n_0 | regs[0][25]_i_1_n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | regs[26][31]_i_1_n_0 | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs[28][31]_i_1_n_0 | regs[0][25]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs[28][31]_i_1_n_0 | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs[29][31]_i_1_n_0 | regs[0][31]_i_2_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs[28][23]_i_1_n_0 | regs[0][17]_i_1_n_0 |                1 |              4 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[23]   | regs[0][17]_i_1_n_0 |                3 |              6 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[7]   | n_idx[2]_i_3_n_0    |                2 |              6 |
+|  clk_IBUF_BUFG | p_0_in[7]            | n_idx[2]_i_3_n_0    |                2 |              6 |
+|  clk_IBUF_BUFG | p_0_in[15]           | regs[0][13]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | p_0_in[15]           | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[7]   | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[15]  | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[15]  | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[15]  | regs[0][13]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[7]   | regs[0][6]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[15]  | regs[0][9]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[23]  | regs[0][17]_i_1_n_0 |                3 |              6 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[15]  | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[15]  | regs[0][9]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[7]    | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[15]  | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[15]   | regs[0][9]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs[25][23]_i_1_n_0 | regs[0][17]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[23]  | regs[0][17]_i_1_n_0 |                3 |              6 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[7]    | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs[25][7]_i_1_n_0  | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs[27][23]_i_1_n_0 | regs[0][17]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[7]   | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[23]  | regs[0][17]_i_1_n_0 |                3 |              6 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[7]    | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[7]   | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs[26][7]_i_1_n_0  | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs[27][31]_i_1_n_0 | regs[0][25]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[31]  | regs[0][29]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[7]   | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[7]    | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[31]  | regs[0][29]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs[27][15]_i_1_n_0 | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs[27][7]_i_1_n_0  | regs[0][6]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[15]  | regs[0][9]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs[29][15]_i_1_n_0 | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs[29][23]_i_1_n_0 | regs[0][17]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[7]   | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[15]   | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs[29][31]_i_1_n_0 | regs[0][25]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs[29][31]_i_1_n_0 | regs[0][29]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[23]   | regs[0][17]_i_1_n_0 |                3 |              6 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[15]  | regs[0][9]_i_1_n_0  |                3 |              6 |
+|  clk_IBUF_BUFG | regs[28][7]_i_1_n_0  | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs[28][15]_i_1_n_0 | regs[0][9]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[15]  | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[7]   | regs[0][6]_i_1_n_0  |                3 |              6 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[31]  | regs[0][29]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs[30][7]_i_1_n_0  | n_idx[2]_i_3_n_0    |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[31]  | regs[0][25]_i_1_n_0 |                3 |              6 |
+|  clk_IBUF_BUFG | regs[30][15]_i_1_n_0 | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs[29][7]_i_1_n_0  | regs[0][6]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[15]  | regs[0][9]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[23]  | regs[0][17]_i_1_n_0 |                3 |              6 |
+|  clk_IBUF_BUFG | regs[31][15]_i_1_n_0 | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs[30][23]_i_1_n_0 | regs[0][17]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[15]   | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs[30][23]_i_1_n_0 | regs[0][21]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[15]   | regs[0][13]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[7]    | regs[0][6]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs[31][23]_i_1_n_0 | regs[0][17]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[23]  | regs[0][17]_i_1_n_0 |                3 |              6 |
+|  clk_IBUF_BUFG | regs[31][31]_i_1_n_0 | regs[0][25]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[23]   | regs[0][21]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | n_idx[2]_i_1_n_0     | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[23]  | regs[0][17]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[15]   | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[23]   | regs[0][17]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[15]   | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[23]   | regs[0][17]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[31]   | regs[0][25]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[23]   | regs[0][21]_i_1_n_0 |                3 |              6 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[31]   | regs[0][29]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[7]   | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[23]  | regs[0][21]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[7]    | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[15]   | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[15]   | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[7]   | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[7]    | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[15]  | regs[0][9]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[7]    | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[31]   | regs[0][25]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[15]  | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[23]   | regs[0][17]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[7]   | n_idx[2]_i_3_n_0    |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[15]   | regs[0][13]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[23]  | regs[0][17]_i_1_n_0 |                3 |              6 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[15]   | regs[0][9]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[23]  | regs[0][17]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[7]    | n_idx[2]_i_3_n_0    |                2 |              6 |
+|  clk_IBUF_BUFG | regs[25][15]_i_1_n_0 | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[23]  | regs[0][17]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[23]   | regs[0][17]_i_1_n_0 |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[15]  | regs[0][9]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs[26][15]_i_1_n_0 | regs[0][9]_i_1_n_0  |                1 |              6 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[23]  | regs[0][21]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[31]  | regs[0][25]_i_1_n_0 |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[15]   | regs[0][9]_i_1_n_0  |                2 |              6 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[7]   | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[23]  | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs[27][31]_i_1_n_0 | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[23]  | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs[26][31]_i_1_n_0 | regs[0][29]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[7]   | regs[0][6]_i_1_n_0  |                3 |              8 |
+|  clk_IBUF_BUFG | regs[27][15]_i_1_n_0 | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[7]   | n_idx[2]_i_3_n_0    |                2 |              8 |
+|  clk_IBUF_BUFG | p_0_in[31]           | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[23]  | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[31]  | regs[0][29]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs[27][7]_i_1_n_0  | n_idx[2]_i_3_n_0    |                1 |              8 |
+|  clk_IBUF_BUFG | regs[29][15]_i_1_n_0 | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[23]   | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | p_0_in[7]            | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[31]  | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[31]   | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs[29][23]_i_1_n_0 | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[7]   | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs[28][31]_i_1_n_0 | regs[0][29]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[23]  | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[10]__0[31]  | regs[0][29]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[7]   | n_idx[2]_i_3_n_0    |                2 |              8 |
+|  clk_IBUF_BUFG | regs[28][7]_i_1_n_0  | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[23]   | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[23]  | regs[0][21]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs[28][15]_i_1_n_0 | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[11]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[23]   | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | p_0_in[23]           | regs[0][21]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[7]    | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs[28][23]_i_1_n_0 | regs[0][21]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs[30][7]_i_1_n_0  | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[7]    | n_idx[2]_i_3_n_0    |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[15]   | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs[30][15]_i_1_n_0 | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[31]   | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[0]__0[23]   | regs[0][21]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[7]    | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[31]  | regs[0][29]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs[29][7]_i_1_n_0  | n_idx[2]_i_3_n_0    |                1 |              8 |
+|  clk_IBUF_BUFG | regs[31][15]_i_1_n_0 | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[23]  | regs[0][21]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[7]    | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[15]  | regs[0][13]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[15]   | regs[0][13]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[15]   | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs[30][31]_i_1_n_0 | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[31]  | regs[0][29]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[31]   | regs[0][29]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[13]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs[31][23]_i_1_n_0 | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs[31][7]_i_1_n_0  | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs[31][7]_i_1_n_0  | n_idx[2]_i_3_n_0    |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[23]   | regs[0][21]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs[31][31]_i_1_n_0 | regs[0][29]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[15]   | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[31]  | regs[0][29]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[7]   | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[2]__0[31]   | regs[0][29]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[23]   | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[15]   | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[31]  | regs[0][29]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[3]__0[15]   | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[7]   | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[31]  | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[23]  | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[23]  | regs[0][21]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[31]   | regs[0][29]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[14]__0[31]  | regs[0][29]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[4]__0[7]    | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[5]__0[31]   | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[7]   | n_idx[2]_i_3_n_0    |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[15]   | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[15]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs[25][15]_i_1_n_0 | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[7]    | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[12]__0[7]   | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[18]__0[7]   | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[7]    | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs[26][15]_i_1_n_0 | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[31]  | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[7]   | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[31]   | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[17]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs[25][31]_i_1_n_0 | regs[0][29]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[20]__0[23]  | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[23]   | regs[0][21]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[15]  | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[7]   | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs[25][23]_i_1_n_0 | regs[0][21]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[8]__0[7]    | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs[25][7]_i_1_n_0  | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[23]__0[7]   | n_idx[2]_i_3_n_0    |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[7]   | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[31]   | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[19]__0[23]  | regs[0][21]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[1]__0[7]    | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs[27][23]_i_1_n_0 | regs[0][21]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[23]   | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[21]__0[23]  | regs[0][21]_i_1_n_0 |                3 |              8 |
+|  clk_IBUF_BUFG | regs_reg[6]__0[31]   | regs[0][29]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[22]__0[7]   | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[9]__0[15]   | regs[0][13]_i_1_n_0 |                1 |              8 |
+|  clk_IBUF_BUFG | regs[26][23]_i_1_n_0 | regs[0][21]_i_1_n_0 |                2 |              8 |
+|  clk_IBUF_BUFG | regs[26][7]_i_1_n_0  | regs[0][6]_i_1_n_0  |                1 |              8 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[7]    | regs[0][6]_i_1_n_0  |                2 |              8 |
+|  clk_IBUF_BUFG | regs_reg[7]__0[7]    | n_idx[2]_i_3_n_0    |                2 |              8 |
+|  clk_IBUF_BUFG |                      | n_idx[2]_i_3_n_0    |                4 |             28 |
+|  clk_IBUF_BUFG | s_axil_arvalid_IBUF  | bvalid_q_i_3_n_0    |               14 |             64 |
+|  clk_IBUF_BUFG | n_idx[2]_i_1_n_0     | regs[0][31]_i_2_n_0 |               18 |            124 |
++----------------+----------------------+---------------------+------------------+----------------+
+
+

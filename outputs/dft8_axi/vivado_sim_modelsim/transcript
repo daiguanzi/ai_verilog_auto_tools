@@ -1,0 +1,27 @@
+# vsim -c -do "run_msim.do" work.tb_dft8_axi_top 
+# Start time: 15:13:18 on Jul 21,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# 
+# //  ModelSim SE-64 10.4 Dec  3 2014 
+# //
+# //  Copyright 1991-2014 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY INFORMATION
+# //  WHICH IS THE PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS
+# //  LICENSORS AND IS SUBJECT TO LICENSE TERMS.
+# //  THIS DOCUMENT CONTAINS TRADE SECRETS AND COMMERCIAL OR FINANCIAL
+# //  INFORMATION THAT ARE PRIVILEGED, CONFIDENTIAL, AND EXEMPT FROM
+# //  DISCLOSURE UNDER THE FREEDOM OF INFORMATION ACT, 5 U.S.C. SECTION 552.
+# //  FURTHERMORE, THIS INFORMATION IS PROHIBITED FROM DISCLOSURE UNDER
+# //  THE TRADE SECRETS ACT, 18 U.S.C. SECTION 1905.
+# //
+# Loading sv_std.std
+# Loading work.tb_dft8_axi_top(fast)
+# Loading work.dft8_axi_top(fast)
+# do run_msim.do
+# === ALL TESTS PASSED (          1 vectors) ===
+# ** Note: $finish    : C:/Users/12430/Desktop/ai_verilog_auto_tools/outputs/dft8_axi/vivado_sim_modelsim/tb_dft8_axi_top.v(69)
+#    Time: 95 ns  Iteration: 1  Instance: /tb_dft8_axi_top
+# End time: 15:13:20 on Jul 21,2026, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0

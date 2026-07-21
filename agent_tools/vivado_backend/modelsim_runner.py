@@ -53,7 +53,7 @@ def run_modelsim(project_dir: str, *, top: str, sources: list[str],
 
     # 2) vlog — compile
     vlog = _find_tool("vlog")
-    cmd = [vlog, "-work", "work", "+acc", "-vopt", "-nocovercells"] + all_files
+    cmd = [vlog, "-sv", "-work", "work", "+acc", "-vopt", "-nocovercells"] + all_files
     rc, out2 = _run_tool(cmd, project_dir, timeout)
     if rc != 0:
         return {"pass": False, "tests": 0, "elapsed_s": time.time() - t0,
