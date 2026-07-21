@@ -93,27 +93,31 @@ ModelSim 全过   → 问用户 → full-run          (分钟级，综合认证)
 | # | 升级方向 | 状态 | 工作量 |
 |---|---------|------|--------|
 | U1 | full-run 自动接 timing_loop | ✅ done (2026-07-21) | 小 |
-| U2 | 生成 GUI 可打开的 Vivado 项目 | ⬜ pending | 中 |
+| U2 | 生成 GUI 可打开的 Vivado 项目 | ✅ done (2026-07-21) | 中 |
 | U3 | 自动 .v TB 生成器升级（多周期 FSM） | ⬜ pending | 中 |
 | U4 | agent_tools 配置文件（统一路径/默认参数） | ⬜ pending | 小 |
-| U5 | webfetch 实战验证（真正上网搜资料写知识库） | ⬜ pending | 小 |
+| U5 | webfetch 实战验证（上网搜资料→写入知识库） | ✅ done (2026-07-21) | 小 |
 | U6 | ISE-4 端到端验证（ISE VM 全流程跑通） | ⬜ 暂缓 | 大 |
 | T1 | Pipeline Advisor：解析 failing path → 插入流水线寄存器（策略 2） | ⬜ pending | 大 |
 | T2 | Logic Depth Optimizer：分析乘法/大扇出级联 → 建议拆分（策略 3） | ⬜ pending | 大 |
+| U7 | AGENTS §10 启动清单加"重读最近复盘" | ⬜ pending | 小 |
+| U8 | full-run 加 --no-sim 跳过已通过仿真 | ✅ done (2026-07-21) | 小 |
+| U9 | vivado-project 增量更新模式 | ✅ done (2026-07-21) | 小 |
 
 ### 测试盲区覆盖（按优先级）
 | # | 项目 | 验证能力 | 状态 |
 |---|------|---------|------|
-| P1 | FIR 滤波器 (DSP 流水线) | 多级管线 + 资源优化 | ⬜ pending |
+| P1 | FIR 滤波器 (DSP 流水线) | 多级管线 + 资源优化 | ✅ done (2026-07-21) |
 | P2 | 异步 FIFO (CDC 跨时钟域) | CDC 知识条目有效性 | ⬜ pending |
 | P3 | 真 Xilinx IP 上板（BRAM/FIFO） | IP 双轨无缝性 | ⬜ pending |
 | P4 | AXI-Stream→AXI-Lite 桥 | 总线混合 + BFM 组合 | ⬜ pending |
 | P5 | 覆盖率驱动随机验证 | B3 随机化深度 | ⬜ pending |
-| P6 | 主动总线设计（从 Phase 0 就预防 IO 超标） | ✅ dft8_axi 已验证 | done |
+| P6 | 主动总线设计（Phase 0 预防 IO 超标） | ✅ dft8_axi 已验证 | done |
 
 ### 优先级建议
-1. **U2 GUI Vivado 项目生成**（用户高优先级）
-2. **U5 webfetch 实战**（用户高优先级）
-3. **FIR 滤波器**（覆盖 DSP 流水线 + 多级管线 + 最常用 FPGA 应用，顺便验证 T1/T2 策略）
-4. **异步 FIFO**（覆盖 CDC 最危险 bug 类）
-5. **T1/T2 时序优化策略**（配合 FIR 项目实战验证）
+1. **P2 异步 FIFO**（覆盖 CDC 最危险 bug 类，目前最大盲区）
+2. **T1/T2 时序优化策略**（Pipeline Advisor + Logic Depth Optimizer）
+3. **P3 真 Xilinx IP 上板**（IP 双轨验证）
+4. **U3 自动 .v TB 生成器升级**（配合活项目推进）
+5. **U4 agent_tools 配置文件**
+6. **U7 AGENTS 启动清单改进**（小改动，随时可做）

@@ -382,4 +382,6 @@ Date: YYYY-MM-DD
 - [ ] `knowledge/_index.md` scanned
 - [ ] `docs/SIMULATOR_GUIDE.md` available for timing questions
 - [ ] `reference/` checked for new input files
-- [ ] Ready to receive instructions
+- [ ] **Read last 3 review files** in `reports/` for recently-learned patterns
+      and pitfalls (formats: `reports/*_review.md`; sort by date, take newest 3).
+      This prevents repeating known bugs (e.g. `model_dut_format_align.md`).

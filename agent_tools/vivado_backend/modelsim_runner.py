@@ -4,8 +4,12 @@ import os, re, subprocess, time
 from pathlib import Path
 from typing import Optional
 
+try:
+    from agent_tools.config_loader import get_path
+except ImportError:
+    from config_loader import get_path
 
-MODELSIM_BIN = r"C:\modeltech64_10.4\win64"
+MODELSIM_BIN = get_path("modelsim")
 
 
 def _find_tool(name: str) -> str:

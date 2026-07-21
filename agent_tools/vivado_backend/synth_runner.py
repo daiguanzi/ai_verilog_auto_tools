@@ -7,11 +7,14 @@ import subprocess
 from pathlib import Path
 from typing import Optional
 
+try:
+    from agent_tools.config_loader import get_path
+except ImportError:
+    from config_loader import get_path
 
 HERE = Path(__file__).resolve().parent
 
-# Default Vivado path (probe P2 verified)
-VIVADO_BAT = r"C:\Xilinx\Vivado\2018.2\bin\vivado.bat"
+VIVADO_BAT = get_path("vivado")
 
 
 # ---------------------------------------------------------------------------
@@ -446,3 +449,112 @@ def timing_loop(
         "history": history,
         "error": f"Could not close timing after {max_iters} iterations (max period={period}ns)",
     }
+
+
+def timing_advise(timing_report_path: str, utilization: dict) -> dict:
+    """Analyze timing report and give pipeline/logic optimization advice.
+
+    Returns {advice: [{type, severity, path, suggestion}, ...], summary: str}
+    """
+    if not os.path.isfile(timing_report_path):
+        return {"advice": [], "summary": "No timing report found"}
+
+    text = Path(timing_report_path).read_text(encoding="utf-8", errors="replace")
+    advice = []
+
+    # Extract failing path details: source → (LUT/DSP chain) → destination
+    # Vivado format: "Slack (VIOLATED) : -X.XXXns  Path: <N>"
+    # "Location             Delay type    Incr(ns)  Path(ns)"
+    # Each line has a cell like: "FDRE (Prop_fdre_C_Q)    0.123   4.567"
+
+    # Strategy: find all paths, count logic elements, classify
+    path_blocks = re.split(r'Slack\s*\((VIOLATED|MET)\)', text)[1:]
+
+    for i in range(0, len(path_blocks) - 1, 2):
+        status = path_blocks[i]
+        block = path_blocks[i + 1]
+        if status != "VIOLATED":
+            continue
+
+        m = re.search(r'([\-\d.]+)ns', block)
+        slack = float(m.group(1)) if m else 0
+
+        # Count cell types in the path
+        luts = len(re.findall(r'(LUT\d|CARRY\d)', block))
+        dsps = len(re.findall(r'(DSP48E1|DSP48E2)', block))
+        fds  = len(re.findall(r'(FDRE|FDSE|FDPE|FDCE)', block))
+        net_delay_match = re.findall(r'net\s+\(.*?\)\s+([\d.]+)', block)
+        logic_delay_match = re.findall(r'(LUT\d|CARRY\d).*?\s+([\d.]+)\s+[\d.]+', block)
+
+        total_cells = luts + dsps
+
+        # Classify and suggest
+        suggestion = None
+        severity = "info"
+
+        if dsps > 0 and total_cells > 1:
+            severity = "high"
+            suggestion = (
+                f"DSP-heavy path with {dsps} DSP(s) and {luts} LUT(s) "
+                f"(slack={slack:.2f}ns). Add MREG/PREG pipeline registers "
+                f"to the multiplier output. In RTL: insert an extra "
+                f"`always @(posedge clk) reg <= dsp_result;` stage after "
+                f"multiplication. See timing_closure.md §策略2."
+            )
+            advice.append({
+                "type": "dsp_pipeline",
+                "severity": severity,
+                "slack_ns": slack,
+                "cells": total_cells,
+                "dsps": dsps,
+                "luts": luts,
+                "suggestion": suggestion,
+            })
+        elif total_cells > 10:
+            severity = "high"
+            suggestion = (
+                f"Long combinatorial path: {total_cells} cells "
+                f"({luts} LUT + {dsps} DSP, slack={slack:.2f}ns). "
+                f"Insert 1-2 pipeline registers midway through the logic "
+                f"chain. In RTL: split the always_comb block and add "
+                f"`always @(posedge clk) pipe <= intermediate;`. "
+                f"See timing_closure.md §策略2."
+            )
+            advice.append({
+                "type": "long_combo_path",
+                "severity": severity,
+                "slack_ns": slack,
+                "cells": total_cells,
+                "suggestion": suggestion,
+            })
+        elif total_cells > 5:
+            severity = "medium"
+            suggestion = (
+                f"Moderate combinatorial path: {total_cells} cells "
+                f"(slack={slack:.2f}ns). Consider adding a pipeline stage "
+                f"or restructuring nested conditionals/mux chains."
+            )
+            advice.append({
+                "type": "moderate_path",
+                "severity": severity,
+                "slack_ns": slack,
+                "cells": total_cells,
+                "suggestion": suggestion,
+            })
+
+        if len(advice) >= 5:
+            break
+
+    # Summary
+    if not advice:
+        summary = "No actionable failing paths found for pipeline optimization."
+    else:
+        high = sum(1 for a in advice if a["severity"] == "high")
+        summary = (
+            f"Found {len(advice)} optimization opportunities "
+            f"({high} high-priority). "
+            f"Top action: add pipeline registers to the longest paths. "
+            f"See knowledge/patterns/timing_closure.md §策略2 for details."
+        )
+
+    return {"advice": advice, "summary": summary}

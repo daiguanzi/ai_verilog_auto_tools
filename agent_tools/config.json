@@ -1,0 +1,15 @@
+{
+    "_comment": "FPGA Agent 工具配置文件 — 统一路径/默认参数",
+    "paths": {
+        "vivado": "C:\\Xilinx\\Vivado\\2018.2\\bin\\vivado.bat",
+        "modelsim": "C:\\modeltech64_10.4\\win64",
+        "wsl": "wsl",
+        "python_venv": ".venv/bin/python"
+    },
+    "defaults": {
+        "device": "xc7a200t-fbg484-2L",
+        "clk_freq_mhz": 100,
+        "simulator": "modelsim",
+        "timeout_minutes": 60
+    }
+}

@@ -720,7 +720,7 @@ if __name__ == "__main__":
     p.add_argument("--sim", default="verilator", help="Simulator for run command")
     p.add_argument("--waves", action="store_true", help="Enable waveform dump for run command")
     p.add_argument("--no-lint", action="store_true", help="Skip the pre-sim lint gate (run command)")
-    p.add_argument("--device", default="xc7a200t-fbg484-2L", help="FPGA device for vivado-ip-tcl")
+    p.add_argument("--device", default=None, help="FPGA device (default from config)")
     p.add_argument("--clk-freq", type=float, default=None, help="Clock frequency in MHz (e.g. 100)")
     p.add_argument("--simulator", default="modelsim", choices=["modelsim", "xsim"],
                    help="Vivado-side simulator (default modelsim)")
@@ -728,6 +728,14 @@ if __name__ == "__main__":
     p.add_argument("--no-sim", action="store_true", help="Skip Verilator+ModelSim in full-run (only lint+synth)")
 
     args = p.parse_args()
+
+    # Fallback defaults from config
+    if args.device is None:
+        try:
+            from agent_tools.config_loader import get_default
+            args.device = get_default("device")
+        except Exception:
+            args.device = "xc7a200t-fbg484-2L"
 
     if args.command == "scan":
         result = scan_project(args.project_dir)
@@ -961,6 +969,23 @@ if __name__ == "__main__":
                             print(f"  Timing loop: FAILED after {tl_res.get('iters','?')} iters")
                     except Exception as e:
                         print(f"  Timing loop: SKIPPED - {e}")
+
+                # ---- Timing advice (pipeline/logic optimization) ----
+                timing_rpt = os.path.join(os.path.join(proj, "vivado_synth"), "vivado_out", "timing.rpt")
+                if os.path.isfile(timing_rpt):
+                    try:
+                        from vivado_backend.synth_runner import timing_advise
+                        ta = timing_advise(timing_rpt, results.get("util", {}))
+                        if ta.get("advice"):
+                            print(f"\n--- Timing Optimization Advice ---")
+                            print(f"  {ta['summary']}")
+                            for a in ta["advice"]:
+                                tag = "🔴" if a["severity"]=="high" else "🟡"
+                                print(f"  {tag} [{a['type']}] cells={a['cells']} slack={a['slack_ns']:.2f}ns")
+                                print(f"     {a['suggestion']}")
+                        results["timing_advice"] = ta
+                    except Exception:
+                        pass
             except Exception as e:
                 results["synth_pass"] = False
                 print(f"  Synth: SKIPPED - {e}")
