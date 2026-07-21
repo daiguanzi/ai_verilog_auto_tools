@@ -69,6 +69,7 @@ ModelSim 全过   → 问用户 → full-run          (分钟级，综合认证)
 🧊 ISE VM               (ISE-1/2/3 done, ISE-4 待端到端验证)
 🧪 DFT 验证项目 ✅（已提拔 11_dft8）
 ✅ DFT8-AXI 全流程 ✅（已提拔 12_dft8_axi，AXI 总线封装 + full-run PASS + timing_loop 收敛）
+✅ FIR 滤波器 ✅（已提拔 13_fir_filter，8-tap MAC + AXI + Vivado GUI + WNS=+1.71ns）
 ```
 
 ---

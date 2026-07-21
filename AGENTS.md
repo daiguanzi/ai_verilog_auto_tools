@@ -167,11 +167,12 @@ Agent: fpga_tools.py vivado-sim → PASS? → fix RTL → back to Phase 1 → re
 
 ### Phase 3: Final Certification (runs ONCE)
 ```bash
-# Run by AGENT only after Phases 1+2 pass, with user confirmation:
-fpga_tools.py full-run outputs/my_project --clk-freq 100
+# Run by AGENT only after Phases 1+2 pass, with user confirmation.
+# --no-sim skips Verilator+ModelSim (already passed in Phase 1+2):
+fpga_tools.py full-run outputs/my_project --clk-freq 100 --no-sim
 ```
-- `full-run` = one-shot report: lint → Verilator → ModelSim → Vivado synth → summary
-- If WNS < 0: try timing_loop (relax period). If still failing, suggest RTL changes.
+- `full-run --no-sim` = lint → Vivado synth → timing → report（跳过已通过的仿真）
+- If WNS < 0: auto-runs timing_loop (relax period). If still failing, suggest RTL changes.
 - After full-run passes: write `reports/` review, update `knowledge/`, recommend promotion
 
 ### Agent Self-Scheduling Rules

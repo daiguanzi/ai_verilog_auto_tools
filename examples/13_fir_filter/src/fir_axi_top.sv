@@ -36,6 +36,9 @@ module fir_axi_top (
     reg [31:0] rdata_q;
     reg start_req;
     reg done_q;
+    reg state;
+    reg [4:0] tap_idx;
+    reg signed [31:0] acc;
 
     wire [4:0] waddr_idx = s_axil_awaddr[6:2];
     wire [4:0] raddr_idx = s_axil_araddr[6:2];
@@ -103,10 +106,6 @@ module fir_axi_top (
     //  FIR filter — direct-form serial MAC (no pipeline)
     //  taps: 16 x (16-bit x 16-bit) → 32-bit output
     // ============================================================
-
-    reg state;
-    reg [4:0] tap_idx;
-    reg signed [31:0] acc;
 
     wire signed [DW-1:0] coeff_mux;
     wire signed [DW-1:0] sample_mux;

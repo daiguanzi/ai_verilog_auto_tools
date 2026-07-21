@@ -725,6 +725,7 @@ if __name__ == "__main__":
     p.add_argument("--simulator", default="modelsim", choices=["modelsim", "xsim"],
                    help="Vivado-side simulator (default modelsim)")
     p.add_argument("--timeout", type=int, default=60, help="Timeout in MINUTES for synth/sim steps (default 60)")
+    p.add_argument("--no-sim", action="store_true", help="Skip Verilator+ModelSim in full-run (only lint+synth)")
 
     args = p.parse_args()
 
@@ -841,21 +842,25 @@ if __name__ == "__main__":
         print(f"  Lint: {'PASS' if results['lint_pass'] else 'FAIL'}")
 
         # ---- Verilator sim ----
-        print("\n--- Verilator Simulation ---")
-        rc, out = _wsl_run(
-            f"cd {wsl_root} && .venv/bin/python agent_tools/fpga_tools.py run {wsl_proj} --json --no-lint", timeout_s // 2)
-        try:
-            results["verilator"] = json.loads(out[out.index("{"):out.rindex("}")+1])
-            results["sim_pass"] = results["verilator"].get("pass", False)
-            print(f"  Verilator: {'PASS' if results['sim_pass'] else 'FAIL'} "
-                  f"({results['verilator'].get('tests_pass',0)}/{results['verilator'].get('tests_total',0)})")
-        except Exception:
-            results["sim_pass"] = False
-            print(f"  Verilator: FAIL (parse error)")
+        if not args.no_sim:
+            print("\n--- Verilator Simulation ---")
+            rc, out = _wsl_run(
+                f"cd {wsl_root} && .venv/bin/python agent_tools/fpga_tools.py run {wsl_proj} --json --no-lint", timeout_s // 2)
+            try:
+                results["verilator"] = json.loads(out[out.index("{"):out.rindex("}")+1])
+                results["sim_pass"] = results["verilator"].get("pass", False)
+                print(f"  Verilator: {'PASS' if results['sim_pass'] else 'FAIL'} "
+                      f"({results['verilator'].get('tests_pass',0)}/{results['verilator'].get('tests_total',0)})")
+            except Exception:
+                results["sim_pass"] = False
+                print(f"  Verilator: FAIL (parse error)")
+        else:
+            results["sim_pass"] = True
+            print("\n--- Verilator Simulation ---")
+            print("  (skipped — --no-sim)")
 
         # ---- Vivado sim (if vivado section) ----
         if cfg and cfg.get("vivado"):
-            print(f"\n--- {args.simulator.upper()} Simulation ---")
             proj = cfg["__project_dir"]
             top = cfg["toplevel"]
             sources = [str(Path(proj) / s) for s in cfg["sources"]]
@@ -867,36 +872,41 @@ if __name__ == "__main__":
                     stub_abs = str(ws / stub) if not os.path.isabs(stub) else stub
                     if os.path.exists(stub_abs) and stub_abs not in sources:
                         sources.append(stub_abs)
-            # find existing .v TB or auto-generate
-            tb_file = os.path.join(proj, f"tb_{top}.v")
-            if not os.path.isfile(tb_file):
-                signals = _detect_signals(proj, top)
-                test_vectors = [{"stimulus": {}, "expected": {}, "label": "reset_only"}]
-                if not signals:
-                    # Fallback to empty
-                    signals = [{"name": "clk", "width": 1, "dir": "input"}]
-            else:
-                signals = None
-                test_vectors = None
 
-            try:
-                if args.simulator == "modelsim":
-                    from vivado_backend.modelsim_runner import run_modelsim as _vsim
+            if not args.no_sim:
+                print(f"\n--- {args.simulator.upper()} Simulation ---")
+                # find existing .v TB or auto-generate
+                tb_file = os.path.join(proj, f"tb_{top}.v")
+                if not os.path.isfile(tb_file):
+                    signals = _detect_signals(proj, top)
+                    test_vectors = [{"stimulus": {}, "expected": {}, "label": "reset_only"}]
+                    if not signals:
+                        signals = [{"name": "clk", "width": 1, "dir": "input"}]
                 else:
-                    from vivado_backend.xsim_runner import run_xsim as _vsim
-                vsim_res = _vsim(os.path.join(proj, f"vivado_sim_{args.simulator}"),
-                                 top=top, sources=sources,
-                                 signals=signals, test_vectors=test_vectors,
-                                 tb_file=tb_file if os.path.isfile(tb_file) else None,
-                                 timeout=timeout_s)
-                results["vivado_sim_pass"] = vsim_res.get("pass", False)
-                results["vivado_sim"] = vsim_res
-                print(f"  {args.simulator.upper()}: {'PASS' if results['vivado_sim_pass'] else 'FAIL'}")
-                if vsim_res.get("error"):
-                    print(f"    Error: {vsim_res['error']}")
-            except Exception as e:
-                results["vivado_sim_pass"] = False
-                print(f"  {args.simulator.upper()}: SKIPPED - {e}")
+                    signals = None
+                    test_vectors = None
+                try:
+                    if args.simulator == "modelsim":
+                        from vivado_backend.modelsim_runner import run_modelsim as _vsim
+                    else:
+                        from vivado_backend.xsim_runner import run_xsim as _vsim
+                    vsim_res = _vsim(os.path.join(proj, f"vivado_sim_{args.simulator}"),
+                                     top=top, sources=sources,
+                                     signals=signals, test_vectors=test_vectors,
+                                     tb_file=tb_file if os.path.isfile(tb_file) else None,
+                                     timeout=timeout_s)
+                    results["vivado_sim_pass"] = vsim_res.get("pass", False)
+                    results["vivado_sim"] = vsim_res
+                    print(f"  {args.simulator.upper()}: {'PASS' if results['vivado_sim_pass'] else 'FAIL'}")
+                    if vsim_res.get("error"):
+                        print(f"    Error: {vsim_res['error']}")
+                except Exception as e:
+                    results["vivado_sim_pass"] = False
+                    print(f"  {args.simulator.upper()}: SKIPPED - {e}")
+            else:
+                results["vivado_sim_pass"] = True
+                print(f"\n--- {args.simulator.upper()} Simulation ---")
+                print("  (skipped -- --no-sim)")
 
             # ---- Vivado synth ----
             print("\n--- Vivado Synthesis ---")
@@ -1025,30 +1035,37 @@ if __name__ == "__main__":
         xdc_full = [str(Path(proj) / x) for x in xdc]
 
         try:
-            from agent_tools.vivado_backend.synth_runner import generate_project_tcl, run_vivado
+            from agent_tools.vivado_backend.synth_runner import generate_project_tcl, generate_project_tcl_update, run_vivado
         except ImportError:
-            from vivado_backend.synth_runner import generate_project_tcl, run_vivado
+            from vivado_backend.synth_runner import generate_project_tcl, generate_project_tcl_update, run_vivado
 
         project_dir = os.path.join(proj, "vivado_project")
         os.makedirs(project_dir, exist_ok=True)
 
-        tcl = generate_project_tcl(
-            project_name=top,
-            part=part,
-            sources=sources_full,
-            top=top,
-            xdc_files=xdc_full,
-            output_dir=project_dir,
-        )
+        xpr_path = os.path.join(project_dir, f"_{top}", f"{top}.xpr")
+        if os.path.exists(xpr_path):
+            tcl = generate_project_tcl_update(
+                project_name=top, part=part,
+                sources=sources_full, top=top,
+                xdc_files=xdc_full, xpr_path=xpr_path,
+            )
+            action = "Updating"
+        else:
+            tcl = generate_project_tcl(
+                project_name=top, part=part,
+                sources=sources_full, top=top,
+                xdc_files=xdc_full, output_dir=project_dir,
+            )
+            action = "Generating"
+
         tcl_path = os.path.join(project_dir, "_create_project.tcl")
         Path(tcl_path).write_text(tcl, encoding="ascii")
 
-        print(f"Generating Vivado project for {top} ({part})...")
+        print(f"{action} Vivado project for {top} ({part})...")
         rc, out, err = run_vivado(tcl_path, timeout=120)
         if rc == 0:
-            xpr = os.path.join(project_dir, f"_{top}", f"{top}.xpr")
-            print(f"Project created:\n  {xpr}")
-            print(f"Open with:  vivado {xpr}")
+            print(f"Project ready:\n  {xpr_path}")
+            print(f"Open with:  vivado {xpr_path}")
             sys.exit(0)
         else:
             print(f"ERROR creating project (rc={rc}):\n{err[:500]}")

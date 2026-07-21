@@ -145,6 +145,40 @@ def generate_project_tcl(
     return "\r\n".join(lines) + "\r\n"
 
 
+def generate_project_tcl_update(
+    project_name: str,
+    part: str,
+    sources: list[str],
+    top: str,
+    xdc_files: list[str] | None = None,
+    xpr_path: str = ".",
+) -> str:
+    """Generate Tcl to open existing project and add/update files."""
+    lines = [
+        "# Auto-generated Vivado project UPDATE script",
+        f"# Project: {project_name}  |  Part: {part}",
+        "",
+        f'open_project {{{os.path.abspath(xpr_path).replace(chr(92), "/")}}}',
+        "",
+        "# Update source files",
+    ]
+    for src in sources:
+        lines.append(f'add_files -norecurse {{{os.path.abspath(src).replace(chr(92), "/")}}}')
+    lines += [
+        f"set_property top {top} [current_fileset]",
+        "update_compile_order -fileset sources_1",
+    ]
+    if xdc_files:
+        lines.append("# Update constraint files")
+        for xdc in xdc_files:
+            lines.append(f'add_files -fileset constrs_1 -norecurse {{{os.path.abspath(xdc).replace(chr(92), "/")}}}')
+    lines += [
+        f'puts "Project updated: {xpr_path}"',
+        "exit",
+    ]
+    return "\r\n".join(lines) + "\r\n"
+
+
 # ---------------------------------------------------------------------------
 # Vivado invocation
 # ---------------------------------------------------------------------------
