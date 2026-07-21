@@ -63,3 +63,15 @@ Agent 的 `timing_loop` 已实现了策略 1 的自动化——WNS < 0 时自动
 - 大扇出/长走线会增加 1-2ns 延迟
 - Agent 实测：adder（9 LUT/9 Reg）在 10ns 时钟下 WNS=+4.5ns（余量充足）
 - cascade（69 LUT/7 DSP）在 1ns 时钟下 WNS=-3.3ns → 需放宽到 ~8ns
+
+## 陷阱：I/O 引脚不够导致实现失败
+
+**现象**：综合通过（有 resource 数据），但实现（place/route）失败，报
+`IO Placement failed due to overutilization`。
+**根因**：顶层模块端口数量超过 FPGA 封装的物理引脚上限
+（xc7a200t-fbg484 = 285 I/O）。**但这不是 RTL 错误**——是设计要求该模块
+为**子模块**（内部连线），不应作为独立顶层。
+**解决**：
+- 作为子模块实例化，不加顶层端口
+- 加总线接口（地址+数据+控制）替代大量并行端口
+- 注意：IP 核（BRAM、FIFO、FFT）内部有几千根连线，但全是内部节点，不走物理引脚
