@@ -803,8 +803,11 @@ if __name__ == "__main__":
         sys.exit(0 if res.get("pass", False) else 1)
 
     elif args.command == "full-run":
+        """One-shot certification report — run ALL steps once, print results, exit.
+        Use for final validation only, NOT for development iteration.
+        """
         print(f"\n{'#'*60}")
-        print(f"  FULL RUN: {args.project_dir}")
+        print(f"  FULL RUN (certification): {args.project_dir}")
         print(f"{'#'*60}")
 
         exit_code = 0
@@ -812,153 +815,132 @@ if __name__ == "__main__":
         proj_abs = os.path.abspath(args.project_dir).replace("\\", "/")
         wsl_proj = proj_abs.replace("C:", "/mnt/c")
         wsl_root = os.path.abspath(".").replace("\\", "/").replace("C:", "/mnt/c")
-        use_wsl = (os.name != "nt" or shutil.which("wsl") is not None)
         timeout_m = args.timeout
         timeout_s = timeout_m * 60
+        results = {}
 
-        # 0) Clock frequency — upfront
-        clk_mhz = args.clk_freq
-        if clk_mhz is None and cfg:
+        # ---- Clock ----
+        clk_mhz = args.clk_freq or (cfg.get("vivado", {}).get("clk_mhz", None) if cfg else None)
+        if not clk_mhz and cfg:
             vcfg = cfg.get("vivado", {})
-            clk_mhz = vcfg.get("clk_mhz")
-            if clk_mhz is None and vcfg.get("clocks"):
-                try:
-                    period = float(vcfg["clocks"][0].get("period_ns", 10.0))
-                    clk_mhz = 1000.0 / period
-                except Exception:
-                    pass
-        if clk_mhz is None:
-            clk_mhz = 100.0
+            if vcfg.get("clocks"):
+                clk_mhz = 1000.0 / float(vcfg["clocks"][0].get("period_ns", 10.0))
+        clk_mhz = clk_mhz or 100.0
         print(f"  Clock: {clk_mhz} MHz")
 
-        # 1) Lint (via WSL if needed)
-        print("\n--- Step 1: Lint (Verilator) ---")
-        lint_pass = False
-        if use_wsl:
-            rc, out = _wsl_run(
-                f"cd {wsl_root} && .venv/bin/python agent_tools/fpga_tools.py lint {wsl_proj} --json",
-                timeout_s // 3,
-            )
-            try:
-                lint_res = json.loads(out[out.index("{"):out.rindex("}")+1])
-                lint_pass = lint_res.get("pass", False)
-            except Exception:
-                lint_pass = "ERROR" not in out
-        else:
-            lint_res = lint_project(args.project_dir)
-            lint_pass = lint_res.get("pass", False)
-        print(f"  Lint: {'PASS' if lint_pass else 'FAIL'}")
+        # ---- Lint ----
+        print("\n--- Lint (Verilator) ---")
+        rc, out = _wsl_run(
+            f"cd {wsl_root} && .venv/bin/python agent_tools/fpga_tools.py lint {wsl_proj} --json", 60)
+        try:
+            results["lint"] = json.loads(out[out.index("{"):out.rindex("}")+1])
+            results["lint_pass"] = results["lint"].get("pass", False)
+        except Exception:
+            results["lint"] = {"raw": out[:500]}
+            results["lint_pass"] = "ERROR" not in out
+        print(f"  Lint: {'PASS' if results['lint_pass'] else 'FAIL'}")
 
-        # 2) Verilator simulation (via WSL)
-        print("\n--- Step 2: Verilator Simulation ---")
-        sim_pass = False
-        if use_wsl:
-            rc, out = _wsl_run(
-                f"cd {wsl_root} && .venv/bin/python agent_tools/fpga_tools.py run {wsl_proj} --json --no-lint",
-                timeout_s // 2,
-            )
-            try:
-                sim_res = json.loads(out[out.index("{"):out.rindex("}")+1])
-                sim_pass = sim_res.get("pass", False)
-                sim_ok = sim_res.get("tests_pass", 0)
-                sim_tot = sim_res.get("tests_total", 0)
-                print(f"  Verilator: {'PASS' if sim_pass else 'FAIL'} ({sim_ok}/{sim_tot} tests)")
-            except Exception:
-                print(f"  Verilator: FAIL (could not parse result)")
-                exit_code = 1
-        else:
-            sim_res = run_project(args.project_dir, sim=args.sim, waves=args.waves, lint=False)
-            sim_pass = sim_res.get("pass", False)
-            print(f"  Verilator: {'PASS' if sim_pass else 'FAIL'} "
-                  f"({sim_res.get('tests_pass',0)}/{sim_res.get('tests_total',0)})")
-        if not sim_pass:
-            exit_code = 1
+        # ---- Verilator sim ----
+        print("\n--- Verilator Simulation ---")
+        rc, out = _wsl_run(
+            f"cd {wsl_root} && .venv/bin/python agent_tools/fpga_tools.py run {wsl_proj} --json --no-lint", timeout_s // 2)
+        try:
+            results["verilator"] = json.loads(out[out.index("{"):out.rindex("}")+1])
+            results["sim_pass"] = results["verilator"].get("pass", False)
+            print(f"  Verilator: {'PASS' if results['sim_pass'] else 'FAIL'} "
+                  f"({results['verilator'].get('tests_pass',0)}/{results['verilator'].get('tests_total',0)})")
+        except Exception:
+            results["sim_pass"] = False
+            print(f"  Verilator: FAIL (parse error)")
 
-        # 3) Vivado simulation + 4) Synthesis (if vivado section exists)
-        if sim_pass and cfg and cfg.get("vivado"):
+        # ---- Vivado sim (if vivado section) ----
+        if cfg and cfg.get("vivado"):
+            print(f"\n--- {args.simulator.upper()} Simulation ---")
             proj = cfg["__project_dir"]
-            vcfg = cfg["vivado"]
-            part = vcfg.get("part", args.device)
             top = cfg["toplevel"]
-            sources_full = [str(Path(proj) / s) for s in cfg["sources"]]
-            workspace_root = Path(__file__).resolve().parent.parent
-            ip_cfg = cfg.get("ip", {})
-            for ip_name, ip_entry in ip_cfg.items():
+            sources = [str(Path(proj) / s) for s in cfg["sources"]]
+            # IP stubs
+            ws = Path(__file__).resolve().parent.parent
+            for ip_name, ip_entry in cfg.get("ip", {}).items():
                 stub = ip_entry.get("stub", "")
                 if stub:
-                    stub_abs = str(workspace_root / stub) if not os.path.isabs(stub) else stub
-                    if os.path.exists(stub_abs) and stub_abs not in sources_full:
-                        sources_full.append(stub_abs)
+                    stub_abs = str(ws / stub) if not os.path.isabs(stub) else stub
+                    if os.path.exists(stub_abs) and stub_abs not in sources:
+                        sources.append(stub_abs)
+            # find existing .v TB or auto-generate
+            tb_file = os.path.join(proj, f"tb_{top}.v")
+            if not os.path.isfile(tb_file):
+                signals = _detect_signals(proj, top)
+                test_vectors = [{"stimulus": {}, "expected": {}, "label": "reset_only"}]
+                if not signals:
+                    # Fallback to empty
+                    signals = [{"name": "clk", "width": 1, "dir": "input"}]
+            else:
+                signals = None
+                test_vectors = None
 
-            # 3) ModelSim / xsim
-            print(f"\n--- Step 3: {args.simulator.upper()} Simulation ---")
-            vivado_sim_pass = False
             try:
                 if args.simulator == "modelsim":
-                    try:
-                        from agent_tools.vivado_backend.modelsim_runner import run_modelsim as _vivado_sim
-                    except ImportError:
-                        from vivado_backend.modelsim_runner import run_modelsim as _vivado_sim
+                    from vivado_backend.modelsim_runner import run_modelsim as _vsim
                 else:
-                    try:
-                        from agent_tools.vivado_backend.xsim_runner import run_xsim as _vivado_sim
-                    except ImportError:
-                        from vivado_backend.xsim_runner import run_xsim as _vivado_sim
-
-                signals = _detect_signals(proj, top)
-                test_vectors = [{"stimulus": {}, "expected": {}, "label": "smoke"}]
-                vsim_res = _vivado_sim(
-                    os.path.join(proj, f"vivado_sim_{args.simulator}"),
-                    top=top, sources=sources_full,
-                    signals=signals, test_vectors=test_vectors,
-                    timeout=timeout_s,
-                )
-                vivado_sim_pass = vsim_res.get("pass", False)
-                print(f"  {args.simulator.upper()}: {'PASS' if vivado_sim_pass else 'FAIL'}")
+                    from vivado_backend.xsim_runner import run_xsim as _vsim
+                vsim_res = _vsim(os.path.join(proj, f"vivado_sim_{args.simulator}"),
+                                 top=top, sources=sources,
+                                 signals=signals, test_vectors=test_vectors,
+                                 tb_file=tb_file if os.path.isfile(tb_file) else None,
+                                 timeout=timeout_s)
+                results["vivado_sim_pass"] = vsim_res.get("pass", False)
+                results["vivado_sim"] = vsim_res
+                print(f"  {args.simulator.upper()}: {'PASS' if results['vivado_sim_pass'] else 'FAIL'}")
                 if vsim_res.get("error"):
                     print(f"    Error: {vsim_res['error']}")
             except Exception as e:
+                results["vivado_sim_pass"] = False
                 print(f"  {args.simulator.upper()}: SKIPPED - {e}")
 
-            if not vivado_sim_pass:
-                exit_code = 1
-
-            # 4) Vivado synthesis
-            print(f"\n--- Step 4: Vivado Synthesis ---")
+            # ---- Vivado synth ----
+            print("\n--- Vivado Synthesis ---")
             try:
-                try:
-                    from agent_tools.vivado_backend.synth_runner import vivado_synth
-                except ImportError:
-                    from vivado_backend.synth_runner import vivado_synth
-                xdc_full = [str(Path(proj) / x) for x in vcfg.get("xdc", [])]
+                from vivado_backend.synth_runner import vivado_synth
+                vcfg = cfg["vivado"]
+                xdc_files = [str(Path(proj) / x) for x in vcfg.get("xdc", [])]
                 synth_res = vivado_synth(
                     project_dir=os.path.join(proj, "vivado_synth"),
-                    part=part, sources=sources_full, top=top,
-                    xdc_files=xdc_full, project_name=top,
-                    timeout=timeout_s,
-                )
-                synth_pass = synth_res.get("pass", False)
-                timing = synth_res.get("reports", {}).get("timing", {})
-                util   = synth_res.get("reports", {}).get("utilization", {})
-                print(f"  Synth: {'PASS' if synth_pass else 'FAIL'}")
+                    part=vcfg.get("part", args.device), sources=sources, top=top,
+                    xdc_files=xdc_files, project_name=top, timeout=timeout_s)
+                results["synth_pass"] = synth_res.get("pass", False)
+                results["synth"] = synth_res
+                results["util"] = synth_res.get("reports", {}).get("utilization", {})
+                results["timing"] = synth_res.get("reports", {}).get("timing", {})
+                print(f"  Synth: {'PASS' if results['synth_pass'] else 'FAIL'}")
                 if synth_res.get("error"):
                     print(f"    Error: {synth_res['error']}")
-                if util:   print(f"  Util:  {util}")
-                if timing: print(f"  WNS={timing.get('wns_ns')}ns  TNS={timing.get('tns_ns')}ns")
-                if not synth_pass:
-                    exit_code = 1
+                if results["util"]: print(f"  Util:  {results['util']}")
+                if results["timing"]: print(f"  WNS={results['timing'].get('wns_ns')}ns  TNS={results['timing'].get('tns_ns')}ns")
             except Exception as e:
+                results["synth_pass"] = False
                 print(f"  Synth: SKIPPED - {e}")
-        elif cfg and not cfg.get("vivado"):
-            print("\n--- Step 3-4: Vivado ---")
-            print("  (skipped — no 'vivado' section in project.json)")
+        elif cfg:
+            print(f"\n--- Vivado ---")
+            print("  (skipped — no 'vivado' section)")
 
-        if not lint_pass:
+        # ---- verdict ----
+        if not results.get("lint_pass", False):
+            exit_code = 1
+        if not results.get("sim_pass", False):
+            exit_code = 1
+        if results.get("vivado_sim_pass") is not None and not results["vivado_sim_pass"]:
+            exit_code = 1
+        if results.get("synth_pass") is not None and not results["synth_pass"]:
             exit_code = 1
 
         print(f"\n{'#'*60}")
         print(f"  FULL RUN: {'PASS' if exit_code == 0 else 'FAIL'}")
-        print(f"{'#'*60}\n")
+        print(f"{'#'*60}")
+
+        if args.json:
+            print(json.dumps({k: v for k, v in results.items()
+                              if isinstance(v, (dict, list, str, int, float, bool))}, indent=2, ensure_ascii=False))
         sys.exit(exit_code)
 
     elif args.command == "ip-scan":

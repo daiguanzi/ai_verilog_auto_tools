@@ -114,51 +114,51 @@ All commands run from the **workspace root** (where this AGENTS.md lives).
 
 ---
 
-## 4. Standard Workflow
+## 4. Agent Decision Flow (V3)
 
-### Phase 0: Understand
-1. Read requirements
-2. Check `reference/` for input files (use `reference_reader.py`)
-3. Search `knowledge/_index.md` for relevant patterns
+> **Resource principle**: Use the cheapest tool that gives you the answer.
+> Verilator is seconds; ModelSim is ~10s; Vivado synth is 5+ minutes.
+> **Never run synthesis during iteration.** It runs ONCE when all sims pass.
 
-### Phase 1: Design
-1. Define module interface (ports, parameters)
-2. Design FSM if stateful
-3. List test scenarios (normal, boundary, error)
+### Phase 0: Understand Requirements
+1. Read user requirements / reference files
+2. Ask for clock frequency upfront (default 100 MHz if no answer)
+3. Check `knowledge/_index.md` for relevant patterns
 
-### Phase 2: Generate Project
-```python
-from agent_tools.project_gen import create_project
-path = create_project(name="my_module", sources=["src/my_module.sv"],
-                      toplevel="my_module", test_module="tb.test_my_module",
-                      output_dir="outputs/my_module")
+### Phase 1: Design + Write RTL + Verilator Iteration (seconds)
 ```
+Agent: generate RTL → fpga_tools.py run → PASS? → fix → repeat
+```
+- Use `fpga_tools.py run` (not `full-run`) for iteration
+- Only proceed to Phase 2 when ALL Verilator tests pass
+- Max 10 Verilator iterations before surfacing to user
 
-### Phase 3: Write RTL
-1. Write minimum working RTL in `src/`
-2. Use registered outputs for all status signals (dispense, valid, done)
-3. Refer to `knowledge/patterns/` for common idioms
+### Phase 2: ModelSim Compatibility Check
+```
+Agent: fpga_tools.py vivado-sim → PASS? → fix RTL → back to Phase 1 → repeat
+```
+- Agent runs this ONLY after Verilator passes
+- Fixes: Verilog-2001 compliance (`logic`→`reg`/`wire`, `always_ff`→`always`)
+- Generate the .v testbench ALONGSIDE the cocotb testbench in Phase 1
+- Max 5 ModelSim iterations before surfacing to user
 
-### Phase 4: Write Testbench
-1. Copy from `templates/tb_comprehensive.py`
-2. Follow the **3-edge pattern** for driving pulsed inputs:
-   ```
-   set signal → RisingEdge#1 → clear → RisingEdge#2 → sample → RisingEdge#3 → return
-   ```
-3. One `@cocotb.test()` per scenario
-4. Use `int(dut.signal.value)` for reading, `==` for comparing
-5. For non-trivial DUTs, use the **reference model + `Scoreboard`** in the
-   template instead of per-case asserts (see
-   `knowledge/patterns/scoreboard_reference_model.md`)
-
-### Phase 5: Iterate
+### Phase 3: Final Certification (runs ONCE)
 ```bash
-python agent_tools/fpga_tools.py run outputs/my_project
+# Run by AGENT only after Phases 1+2 pass, with user confirmation:
+fpga_tools.py full-run outputs/my_project --clk-freq 100
 ```
-Read result. If FAIL: check `result["raw_log"]`, find assertion line, fix RTL, re-run. Max 10 iterations.
+- `full-run` = one-shot report: lint → Verilator → ModelSim → Vivado synth → summary
+- If WNS < 0: try timing_loop (relax period). If still failing, suggest RTL changes.
+- After full-run passes: write `reports/` review, update `knowledge/`, recommend promotion
 
-### Phase 6: Review (AFTER project completes)
-See §8 — write lessons to `knowledge/`.
+### Agent Self-Scheduling Rules
+| When | What to run | Purpose |
+|------|-----------|---------|
+| I just changed RTL | `fpga_tools.py run` | Fast Verilator feedback |
+| Verilator all passes | `fpga_tools.py vivado-sim` | Check Vivado compatibility |
+| Both sim platforms pass | `fpga_tools.py full-run` (ask user first) | Final certification |
+| I need resource estimates | `fpga_tools.py vivado-synth` | Without timing |
+| User says "just synth" | `fpga_tools.py vivado-synth` | Skip sim steps |
 
 ---
 
