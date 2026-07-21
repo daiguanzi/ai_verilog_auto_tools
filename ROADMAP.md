@@ -10,15 +10,15 @@
 
 | # | 决策 | 理由 |
 |---|------|------|
-| D1 | **仿真统一用 Verilator + cocotb**；Vivado 只负责构建/时序/bitstream | cocotb 不支持 Vivado xsim；保留现有全部基建 |
+| D1 | **仿真统一用 Verilator + cocotb**；Vivado 只负责综合/时序/bitstream；ModelSim/xsim 作为第二仿真器兼容验证 | Verilator+cocotb 最快迭代；ModelSim/xsim 检查工具链兼容性 |
 | D2 | **混合运行模式**：仿真在 WSL（venv），Vivado 在 Windows 批处理调用 | 各用所长，最省事 |
 | D3 | **IP 双轨**：仿真用"替身模型"，构建/上板用"真厂商 IP"，两者永不混用 | 迭代快、上板稳、跨项目一致、可证明等价 |
 | D4 | 仅面向 **Xilinx (Vivado 2018.2)** | 用户唯一目标平台 |
 | D5 | 所有项目**最终都要上板**，必须有综合/时序/bitstream 轨道 | 仿真过 ≠ 时序收敛 ≠ 能上板 |
 
 ### 环境备注
-- WSL：Ubuntu，**Python 在虚拟环境 (.venv) 中**，运行命令前需 `source .venv/bin/activate`。
-- Windows：Vivado 2018.2（用于综合/时序/bitstream，及 IP 仿真耗时探针）。
+- WSL：Ubuntu，Python 在虚拟环境 (.venv) 中。Agent 调用 WSL 时需指定 `.venv/bin/python`。
+- Windows：Vivado 2018.2（综合/时序/bitstream），ModelSim 10.4（行为仿真）。
 
 ### IP 替身战略（D3 展开）
 > 一句话：**仿真用替身，上板用真 IP。**
@@ -33,7 +33,7 @@
 ### 常设流程（贯穿所有阶段）
 - **outputs → examples 提拔**：每个项目完成后，按 `AGENTS.md §8` 第 7 条评估是否提拔为
   示例（标准：全过 / 能力独特 / 对应 knowledge / 干净）。**先推荐候选，用户确认后再复制**；
-  提拔后删除 outputs 工作副本，并清理与 examples 逐字节相同的冗余副本。`outputs/` 保持纯草稿区。
+  提拔后保留 outputs 副本以防验证需要，确认无依赖后可清理。`outputs/` 保持纯草稿区。
 
 ---
 
@@ -48,7 +48,7 @@
 ✅ 阶段 E  端到端整合
 ✅ V3 自主调度机制（AGENTS §4）
 🧊 ISE VM 并行轨道（按需启用）
-🧪 DFT 全流程验证（进行中）
+✅ DFT 全流程验证 ✅（11_dft8 + 12_dft8_axi）
 ```
 
 ---
@@ -60,7 +60,7 @@
 - [x] 7 个示例（adder, vending, debounce, uart_tx, spi, fifo, counter）
 - [x] 知识库 7 条 + 复盘机制
 
-### 阶段 A — 加固地基（当前）
+### 阶段 A — 加固地基
 - [x] A1 用 `verilator --xml-only` 替换 `fpga_tools.py` 的正则模块解析（带正则回退），可靠提取端口/参数/层次/自动找 top（2026-06-22）
 - [x] A2 扩展 `project.json`：include 目录、宏定义、参数覆盖、timescale、多文件（2026-06-22，验证项目 `outputs/a2_check`）
 - [x] A3 加 lint 门禁：生成 RTL 先过 `verilator --lint-only -Wall -Wno-fatal` 再仿真（2026-06-22，错误阻断、警告仅提示；`run` 默认门禁，可 `--no-lint` 跳过，另有独立 `lint` 命令）
@@ -80,7 +80,9 @@
 - [x] C2 每个替身配契约测试（2026-07-08，`contract_test_spec.md`——通用 T1–T5 + IP 专属清单）
 - [x] C3 IP 扫描器：解析 `.xci/.xpr`，列出 IP / 版本 / 参数（2026-07-08，`fpga_tools.py ip-scan`，beamform 检出 21 文件，覆盖率 14/21）
 - [x] C4 `project.json` 增加 `ip` 段（2026-07-08，`run`/`lint` 自动引用替身；验证 c4_check 1/1）
-- [x] C5 探针：实测 Vivado IP-VVerilator 兼容性（2026-06-29，结论：加密+SVA+deassign，不能直接编译，替身是唯一路径）
+- [x] C5 探针：实测 Vivado IP-VVerilator 兼容性（2026-06-29）
+  - 结论：加密+SVA+deassign，不能直接编译，替身是唯一路径
+  - 同时验证了从 Windows PowerShell 批处理调 Vivado 的能力
 - [x] C6 Agent 生成 Vivado Tcl 创建/配置 IP（2026-07-08，`vivado_tools.py` + CLI `vivado-ip-tcl`）
 
 ### 阶段 D — 上板轨道
@@ -102,12 +104,8 @@
 - [x] E1 一条命令：需求→仿真过→lint 过→Vivado综合（2026-07-20）
 - [x] E2 复盘机制（2026-07-20）
 
-### 🔄 V3 执行机制（2026-07-20）
-
-Agent 自主调度三条原则（详见 `AGENTS.md §4`）：
-1. **成本递增**：Verilator(秒)→ModelSim(10s)→Vivado(5min+)，能用便宜工具就不用贵的
-2. **迭代只在仿真层**：改 RTL 跑 `run`，不要 `full-run`——综合只在所有仿真过之后跑一次
-3. **full-run = 认证报告**：一键输出 lint+Verilator+ModelSim+synth+timing 全流程结果
+### 🔄 V3 执行机制（详见 AGENTS.md §4）
+> Agent 自主调度三阶段 + 成本递增原则。此处不再重复，以 AGENTS.md 为准。
 
 ### 🧪 阶段 D/E 完成后的全流程验证项目
 ### 🧪 DFT 全流程验证
@@ -126,9 +124,11 @@ Agent 自主调度三条原则（详见 `AGENTS.md §4`）：
 - [ ] U4 agent_tools 配置文件（统一路径/默认参数）
 - [ ] U5 webfetch 实战验证（上网搜资料→写入知识库）
 - [ ] U6 ISE-4 端到端验证（暂缓）
+- [ ] T1 **Pipeline Advisor**：解析 timing report failing path → 检测组合逻辑层数 → 自动插入流水线寄存器 → 重综合（策略 2）
+- [ ] T2 **Logic Depth Optimizer**：分析乘法/大扇出 mux 级联 → 建议拆分方案 → 重综合（策略 3）
 
 ### 🧪 测试盲区覆盖项目
-- [ ] P1 FIR 滤波器（DSP 流水线 + 多级管线）
+- [ ] P1 FIR 滤波器（DSP 流水线 + 多级管线，配合 T1/T2 策略验证）
 - [ ] P2 异步 FIFO（CDC 跨时钟域）
 - [ ] P3 真 Xilinx IP 上板验证（BRAM/FIFO）
 - [ ] P4 AXI-Stream→AXI-Lite 总线桥
@@ -136,14 +136,7 @@ Agent 自主调度三条原则（详见 `AGENTS.md §4`）：
 
 ---
 
-## 3. 数据探针（动手阶段 A 前后并行进行，给决策提供真实数据）
-
-- [x] P1 实测一个带 IP 工程在 Vivado 2018.2 上的仿真模型导出与 Verilator 编译（2026-06-29）→ 结论：不能直接编译，替身是主要路径。
-- [x] P2 验证能否从本环境批处理调起 Windows Vivado（2026-06-29）→ 可以，`vivado -mode batch -source script.tcl` 在 `C:\Xilinx\Vivado\2018.2` 正常工作。
-
----
-
-## 4. 版本日志
+## 3. 版本日志
 | 版本 | 日期 | 内容 |
 |------|------|------|
 | — | 2026-06-22 | 制定长期路线图（阶段 A–E），锁定架构决策 D1–D5 |

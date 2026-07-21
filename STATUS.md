@@ -97,6 +97,8 @@ ModelSim 全过   → 问用户 → full-run          (分钟级，综合认证)
 | U4 | agent_tools 配置文件（统一路径/默认参数） | ⬜ pending | 小 |
 | U5 | webfetch 实战验证（真正上网搜资料写知识库） | ⬜ pending | 小 |
 | U6 | ISE-4 端到端验证（ISE VM 全流程跑通） | ⬜ 暂缓 | 大 |
+| T1 | Pipeline Advisor：解析 failing path → 插入流水线寄存器（策略 2） | ⬜ pending | 大 |
+| T2 | Logic Depth Optimizer：分析乘法/大扇出级联 → 建议拆分（策略 3） | ⬜ pending | 大 |
 
 ### 测试盲区覆盖（按优先级）
 | # | 项目 | 验证能力 | 状态 |
@@ -109,7 +111,8 @@ ModelSim 全过   → 问用户 → full-run          (分钟级，综合认证)
 | P6 | 主动总线设计（从 Phase 0 就预防 IO 超标） | ✅ dft8_axi 已验证 | done |
 
 ### 优先级建议
-1. **FIR 滤波器**（覆盖 DSP 流水线 + 多级管线 + 最常用 FPGA 应用）
-2. **U2 GUI Vivado 项目生成**（用户高优先级）
-3. **U5 webfetch 实战**（用户高优先级）
+1. **U2 GUI Vivado 项目生成**（用户高优先级）
+2. **U5 webfetch 实战**（用户高优先级）
+3. **FIR 滤波器**（覆盖 DSP 流水线 + 多级管线 + 最常用 FPGA 应用，顺便验证 T1/T2 策略）
 4. **异步 FIFO**（覆盖 CDC 最危险 bug 类）
+5. **T1/T2 时序优化策略**（配合 FIR 项目实战验证）
